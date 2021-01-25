@@ -1,0 +1,6 @@
+/.vs/*
+/WetPicsRebirth/appsettings.Development.json
+/WetPicsRebirth/bin/*
+/WetPicsRebirth/obj/*
+*.user
+/ngrok.exe
