@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Telegram.Bot;
 
-namespace WetPicsRebirth
+namespace WetPicsRebirth.Services
 {
     public class TelegramHostedService : IHostedService
     {

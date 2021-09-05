@@ -4,3 +4,5 @@
 /WetPicsRebirth/obj/*
 *.user
 /ngrok.exe
+/.idea/*
+/obj/*

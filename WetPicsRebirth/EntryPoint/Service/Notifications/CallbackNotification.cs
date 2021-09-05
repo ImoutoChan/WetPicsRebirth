@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Telegram.Bot.Types;
 
-namespace WetPicsRebirth.EntryPoint.Service
+namespace WetPicsRebirth.EntryPoint.Service.Notifications
 {
     public class CallbackNotification : INotification
     {

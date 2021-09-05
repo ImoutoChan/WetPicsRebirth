@@ -4,6 +4,8 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using WetPicsRebirth.EntryPoint.Service.Notifications;
+using WetPicsRebirth.Services;
 
 namespace WetPicsRebirth.EntryPoint.Service
 {
@@ -11,13 +13,16 @@ namespace WetPicsRebirth.EntryPoint.Service
     {
         private readonly ILogger<NotificationService> _logger;
         private readonly IMediator _mediator;
+        private readonly IAccessControl _accessControl;
 
         public NotificationService(
             ILogger<NotificationService> logger,
-            IMediator mediator)
+            IMediator mediator,
+            IAccessControl accessControl)
         {
             _logger = logger;
             _mediator = mediator;
+            _accessControl = accessControl;
         }
 
         public async Task NotifyAsync(Update update)
@@ -28,7 +33,7 @@ namespace WetPicsRebirth.EntryPoint.Service
             {
                 var notification = GetNotification(update);
 
-                if (notification == null)
+                if (notification == null || !await _accessControl.CheckAccess(notification))
                     return;
 
                 await _mediator.Publish(notification);
