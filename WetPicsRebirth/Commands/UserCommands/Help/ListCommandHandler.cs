@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using WetPicsRebirth.Commands.UserCommands.Abstract;
-using WetPicsRebirth.EntryPoint.Service.Notifications;
 
 namespace WetPicsRebirth.Commands.UserCommands.Help
 {

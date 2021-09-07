@@ -6,3 +6,5 @@
 /ngrok.exe
 /.idea/*
 /obj/*
+/WetPicsRebirth.Tests/bin/*
+/WetPicsRebirth.Tests/obj/*

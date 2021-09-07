@@ -4,7 +4,6 @@
     {
         Pixiv,
         Danbooru,
-        Yandere,
-        Manual
+        Yandere
     }
 }

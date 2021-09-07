@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30803.129
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WetPicsRebirth", "WetPicsRebirth\WetPicsRebirth.csproj", "{E76375BD-5D16-494E-9A54-D6E2FFEF8D43}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WetPicsRebirth.Tests", "WetPicsRebirth.Tests\WetPicsRebirth.Tests.csproj", "{1309FB55-2B54-434F-AFB6-23E7DECE5EAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E76375BD-5D16-494E-9A54-D6E2FFEF8D43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E76375BD-5D16-494E-9A54-D6E2FFEF8D43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E76375BD-5D16-494E-9A54-D6E2FFEF8D43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1309FB55-2B54-434F-AFB6-23E7DECE5EAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1309FB55-2B54-434F-AFB6-23E7DECE5EAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1309FB55-2B54-434F-AFB6-23E7DECE5EAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1309FB55-2B54-434F-AFB6-23E7DECE5EAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
