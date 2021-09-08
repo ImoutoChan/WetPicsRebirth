@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -74,7 +75,7 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             return _httpClient.SendAsync(request);
         }
 
-        public async Task<byte[]> DownloadImage(string imageUrl)
+        public async Task<Stream> DownloadImage(string imageUrl)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, imageUrl);
 
@@ -88,7 +89,7 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadAsByteArrayAsync();
+            return await response.Content.ReadAsStreamAsync();
         }
     }
 }

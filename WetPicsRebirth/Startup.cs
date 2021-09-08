@@ -14,6 +14,10 @@ using WetPicsRebirth.Commands.UserCommands.Abstract;
 using WetPicsRebirth.Data;
 using WetPicsRebirth.Data.Repositories;
 using WetPicsRebirth.EntryPoint.Service;
+using WetPicsRebirth.Infrastructure;
+using WetPicsRebirth.Infrastructure.Engines;
+using WetPicsRebirth.Infrastructure.Engines.Pixiv;
+using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
 using WetPicsRebirth.Jobs;
 using WetPicsRebirth.Services;
 
@@ -30,6 +34,9 @@ namespace WetPicsRebirth
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<PixivConfiguration>(Configuration.GetSection("Pixiv"));
+            services.Configure<DanbooruConfiguration>(Configuration.GetSection("Danboou"));
+
             services.AddControllers().AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
@@ -53,6 +60,12 @@ namespace WetPicsRebirth
             services.AddTransient<IAccessControl, AccessControl>();
             services.AddTransient<IScenesRepository, ScenesRepository>();
             services.AddTransient<IActressesRepository, ActressesRepository>();
+            services.AddTransient<IPostedMediaRepository, PostedMediaRepository>();
+
+            services.AddTransient<IPopularListLoader, PopularListLoader>();
+            services.AddHttpClient<IEngineFactory, EngineFactory>();
+            services.AddHttpClient<IPixivApiClient, PixivApiClient>();
+            services.AddTransient<IPixivAuthorization, PixivAuthorization>();
 
             // mediator
             services.AddMediatR(typeof(Startup));
@@ -67,7 +80,7 @@ namespace WetPicsRebirth
 
             // data
             services.AddDbContext<WetPicsRebirthDbContext>(
-                x => x.UseNpgsql(Configuration.GetConnectionString("PgConnectionString")));
+                x => x.UseNpgsql(Configuration.GetConnectionString("WetPicsRebirthOnPostgres")));
 
             // quartz
             services.AddQuartz(c =>

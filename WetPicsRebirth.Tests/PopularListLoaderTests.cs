@@ -85,7 +85,7 @@ namespace WetPicsRebirth.Tests
             var post = await _loader.LoadPost(ImageSource.Yandere, new PostHeader(666626, null));
 
             using MD5 md5 = MD5.Create();
-            var hash = string.Join("", md5.ComputeHash(post.File.ToArray()).Select(x => x.ToString("X2")));
+            var hash = string.Join("", md5.ComputeHash(post.File).Select(x => x.ToString("X2")));
 
             hash.ToUpperInvariant().Should().Be("4cedfc7918c5bf7b82ae7af1402ce9b7".ToUpperInvariant());
         }
@@ -96,7 +96,7 @@ namespace WetPicsRebirth.Tests
             var post = await _loader.LoadPost(ImageSource.Danbooru, new PostHeader(4695839, null));
 
             using MD5 md5 = MD5.Create();
-            var hash = string.Join("", md5.ComputeHash(post.File.ToArray()).Select(x => x.ToString("X2")));
+            var hash = string.Join("", md5.ComputeHash(post.File).Select(x => x.ToString("X2")));
 
             hash.ToUpperInvariant().Should().Be("44727b73a7995a630194cecf7d20e73a".ToUpperInvariant());
         }

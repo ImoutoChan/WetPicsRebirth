@@ -106,9 +106,9 @@ namespace WetPicsRebirth.Commands.UserCommands.Actresses
                 sb.AppendLine();
                 sb.Append("<b>");
                 sb.Append(actress.ImageSource.ToString());
-                sb.AppendLine("</b>");
+                sb.Append("</b> ");
                 sb.AppendLine(actress.Options);
-                sb.Append("Команда для удаления: /removeactress");
+                sb.Append("/removeactress_");
                 sb.AppendLine(actress.Id.ToString().Replace("-", ""));
             }
 

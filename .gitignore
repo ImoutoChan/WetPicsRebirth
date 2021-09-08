@@ -8,3 +8,4 @@
 /obj/*
 /WetPicsRebirth.Tests/bin/*
 /WetPicsRebirth.Tests/obj/*
+/WetPicsRebirth/appsettings.Cache.json

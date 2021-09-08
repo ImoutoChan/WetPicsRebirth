@@ -23,5 +23,10 @@ namespace WetPicsRebirth.Infrastructure
         {
             return _engineFactory.Get(source).LoadPost(header);
         }
+
+        public string CreateCaption(ImageSource source, string options, Post post)
+        {
+            return _engineFactory.Get(source).CreateCaption(source, options, post);
+        }
     }
 }
