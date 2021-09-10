@@ -5,6 +5,8 @@ namespace WetPicsRebirth.Services
     public static class Keyboards
     {
         public static InlineKeyboardMarkup WithLikes(int likesCount)
-            => new(InlineKeyboardButton.WithCallbackData($"❤️ ({likesCount})", "vote_l"));
+            => likesCount > 0
+                ? new(InlineKeyboardButton.WithCallbackData($"❤️ ({likesCount})", "vote_l"))
+                : new(InlineKeyboardButton.WithCallbackData($"❤️", "vote_l"));
     }
 }

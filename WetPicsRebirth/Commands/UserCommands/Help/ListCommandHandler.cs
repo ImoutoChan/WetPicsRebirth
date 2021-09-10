@@ -43,11 +43,6 @@ namespace WetPicsRebirth.Commands.UserCommands.Help
                 .Select(x => (MessageHandler)_serviceProvider.GetRequiredService(x))
                 .SelectMany(x => x.ProvidedCommands);
 
-            // var commands = _handlers
-            //     .Select(x => x as MessageHandler)
-            //     .Where(x => x != null)
-            //     .SelectMany(x => x!.ProvidedCommands);
-
             await _telegramBotClient.SendTextMessageAsync(
                 message.Chat.Id,
                 "Your hands today, sir: \n\n" + string.Join("\n", commands),

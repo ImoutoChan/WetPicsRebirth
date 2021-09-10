@@ -11,11 +11,11 @@ namespace WetPicsRebirth.Services
     public class TelegramHostedService : IHostedService
     {
         private readonly IConfiguration _configuration;
-        private readonly ILogger<Startup> _logger;
+        private readonly ILogger<TelegramHostedService> _logger;
         private readonly ITelegramBotClient _telegramBotClient;
 
         public TelegramHostedService(
-            ILogger<Startup> logger,
+            ILogger<TelegramHostedService> logger,
             IConfiguration configuration,
             ITelegramBotClient telegramBotClient)
         {

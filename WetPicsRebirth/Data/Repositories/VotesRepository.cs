@@ -22,13 +22,12 @@ namespace WetPicsRebirth.Data.Repositories
             if (exists != null)
             {
                 _context.Votes.Remove(exists);
-                await _context.SaveChangesAsync();
             }
             else
             {
                 _context.Votes.Add(vote);
-                await _context.SaveChangesAsync();
             }
+            await _context.SaveChangesAsync();
 
             return await _context.Votes
                 .Where(x => x.ChatId == vote.ChatId && x.MessageId == vote.MessageId)
