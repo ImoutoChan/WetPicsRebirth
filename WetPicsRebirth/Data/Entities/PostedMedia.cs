@@ -11,7 +11,8 @@ namespace WetPicsRebirth.Data.Entities
             int messageId,
             string fileId,
             ImageSource imageSource,
-            int postId)
+            int postId,
+            string postHash)
         {
             Id = id;
             ChatId = chatId;
@@ -19,6 +20,7 @@ namespace WetPicsRebirth.Data.Entities
             FileId = fileId;
             ImageSource = imageSource;
             PostId = postId;
+            PostHash = postHash;
         }
 
         public Guid Id { get; private set; }
@@ -32,6 +34,8 @@ namespace WetPicsRebirth.Data.Entities
         public ImageSource ImageSource { get; private set; }
 
         public int PostId { get; private set; }
+
+        public string PostHash { get; private set; }
 
         public DateTimeOffset AddedDate { get; set; }
 

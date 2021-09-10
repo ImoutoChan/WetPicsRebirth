@@ -42,8 +42,7 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             if (!Enum.TryParse(options, true, out PixivTopType type) || post.PostHeader is not PixivPostHeader header)
                 throw new ArgumentException($"Unable to parse pixiv options {options}", nameof(options));
 
-            return $"<a href=\"https://www.pixiv.net/member_illust.php?mode=medium&illust_id={post.PostHeader.Id}\">" +
-                   $"Pixiv {type.ToString()} # {EscapeHtml(header.Title)} © {EscapeHtml(header.ArtistName)}</a>";
+            return $"<a href=\"https://www.pixiv.net/member_illust.php?mode=medium&illust_id={post.PostHeader.Id}\">pixiv {options.ToLower()}</a>";
         }
 
         private static string EscapeHtml(string input)

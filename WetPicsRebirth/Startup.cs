@@ -61,6 +61,8 @@ namespace WetPicsRebirth
             services.AddTransient<IScenesRepository, ScenesRepository>();
             services.AddTransient<IActressesRepository, ActressesRepository>();
             services.AddTransient<IPostedMediaRepository, PostedMediaRepository>();
+            services.AddTransient<IVotesRepository, VotesRepository>();
+            services.AddTransient<IUsersRepository, UsersRepository>();
 
             services.AddTransient<IPopularListLoader, PopularListLoader>();
             services.AddHttpClient<IEngineFactory, EngineFactory>();

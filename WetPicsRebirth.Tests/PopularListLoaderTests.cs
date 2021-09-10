@@ -35,8 +35,8 @@ namespace WetPicsRebirth.Tests
                         new HttpClient(),
                         pixivOptions,
                         new PixivAuthorization(pixivOptions,
-                            new MemoryCache(Options.Create(new MemoryCacheOptions()))))));
-
+                            new MemoryCache(Options.Create(new MemoryCacheOptions()))))),
+                new MemoryCache(Options.Create(new MemoryCacheOptions())));
         }
 
         [Theory]

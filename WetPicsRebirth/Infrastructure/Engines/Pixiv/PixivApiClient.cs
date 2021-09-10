@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using WetPicsRebirth.Extensions;
@@ -20,7 +21,10 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
         private readonly IOptions<PixivConfiguration> _configuration;
         private readonly IPixivAuthorization _pixivAuthorization;
 
-        public PixivApiClient(HttpClient httpClient, IOptions<PixivConfiguration> configuration, IPixivAuthorization pixivAuthorization)
+        public PixivApiClient(
+            HttpClient httpClient,
+            IOptions<PixivConfiguration> configuration,
+            IPixivAuthorization pixivAuthorization)
         {
             _httpClient = httpClient;
             _configuration = configuration;
@@ -29,8 +33,6 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
 
         public async Task<IReadOnlyCollection<PixivPostHeader>> LoadTop(PixivTopType topType, int page = 1, int count = 100)
         {
-            var token = await _pixivAuthorization.GetAccessToken();
-
             const string url = "https://public-api.secure.pixiv.net/v1/ranking/all";
 
             var param = new Dictionary<string, string>
@@ -44,9 +46,7 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
                 {"profile_image_sizes", "px_50x50"}
             };
 
-            var response = await SendGetRequestAsync(url, param, token);
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var responseContent = await GetAsync(url, param);
             var rank = JToken.Parse(responseContent).SelectToken("response")?.ToObject<IReadOnlyCollection<Rank>>()
                 ?.FirstOrDefault();
 
@@ -56,13 +56,16 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             return rank.Works.Select(x => x.Work)
                 .Select(x => new PixivPostHeader((int)x.Id!.Value, x.ImageUrls.Large, x.Title, x.User.Name))
                 .ToList();
+
         }
 
-        private Task<HttpResponseMessage> SendGetRequestAsync(
+        private async Task<string> GetAsync(
             string url,
             IDictionary<string, string> param,
-            string token)
+            bool isRetry = false)
         {
+            var token = await _pixivAuthorization.GetAccessToken();
+
             url += "?" + string.Join("&", param.Select(x => x.Key + "=" + WebUtility.UrlEncode(x.Value)));
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -72,7 +75,17 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             request.Headers.UserAgent.Add(new ProductInfoHeaderValue("PixivIOSApp", "5.8.0"));
             request.Headers.Authorization = AuthenticationHeaderValue.Parse("Bearer " + token);
 
-            return _httpClient.SendAsync(request);
+            try
+            {
+                var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch when(!isRetry)
+            {
+                _pixivAuthorization.ResetAccessToken();
+                return await GetAsync(url, param, true);
+            }
         }
 
         public async Task<Stream> DownloadImage(string imageUrl)

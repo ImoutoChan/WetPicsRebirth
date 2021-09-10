@@ -40,12 +40,12 @@ namespace WetPicsRebirth.Infrastructure.Engines
 
         public string CreateCaption(ImageSource source, string options, Post post)
         {
-            var type = GetPopularType(options);
+            var type = GetPopularType(options).MakeAdverb().ToLower();
 
             return source switch
             {
-                ImageSource.Danbooru => $"<a href=\"https://danbooru.donmai.us/posts/{post.PostHeader.Id}\">Danbooru {type.MakeAdverb()} top # {post.PostHeader.Id}</a>",
-                ImageSource.Yandere => $"<a href=\"https://yande.re/post/show/{post.PostHeader.Id}\">Yandere {type.MakeAdverb()} top # {post.PostHeader.Id}</a>",
+                ImageSource.Danbooru => $"<a href=\"https://danbooru.donmai.us/posts/{post.PostHeader.Id}\">danbooru {type}</a>",
+                ImageSource.Yandere => $"<a href=\"https://yande.re/post/show/{post.PostHeader.Id}\">yandere {type}</a>",
                 _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
             };
         }

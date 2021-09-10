@@ -6,26 +6,14 @@ namespace WetPicsRebirth.Data.Entities
 {
     public class User : IEntityBase
     {
-        public User(
-            int id,
-            string firstName,
-            string lastName,
-            string username)
-        {
-            Id = id;
-            FirstName = firstName;
-            LastName = lastName;
-            Username = username;
-        }
-        
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; private set; }
+        public int Id { get; set; }
 
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
-        public string Username { get; set; }
+        public string? Username { get; set; }
 
         public DateTimeOffset AddedDate { get; set; }
 

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WetPicsRebirth.Data;
@@ -9,9 +10,10 @@ using WetPicsRebirth.Data;
 namespace WetPicsRebirth.Migrations
 {
     [DbContext(typeof(WetPicsRebirthDbContext))]
-    partial class WetPicsRebirthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210910094032_AddHashColumnToPostedMedia")]
+    partial class AddHashColumnToPostedMedia
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,15 +123,18 @@ namespace WetPicsRebirth.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -139,24 +144,27 @@ namespace WetPicsRebirth.Migrations
 
             modelBuilder.Entity("WetPicsRebirth.Data.Entities.Vote", b =>
                 {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PostedMediaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AddedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<long>("ChatId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("MessageId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("AddedDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<DateTimeOffset>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("ChatId", "MessageId", "UserId");
+                    b.HasKey("UserId", "PostedMediaId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("PostedMediaId");
 
                     b.ToTable("Votes");
                 });
@@ -174,16 +182,15 @@ namespace WetPicsRebirth.Migrations
 
             modelBuilder.Entity("WetPicsRebirth.Data.Entities.Vote", b =>
                 {
-                    b.HasOne("WetPicsRebirth.Data.Entities.User", "User")
+                    b.HasOne("WetPicsRebirth.Data.Entities.PostedMedia", "PostedMedia")
                         .WithMany("Votes")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("PostedMediaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WetPicsRebirth.Data.Entities.PostedMedia", "PostedMedia")
+                    b.HasOne("WetPicsRebirth.Data.Entities.User", "User")
                         .WithMany("Votes")
-                        .HasForeignKey("ChatId", "MessageId")
-                        .HasPrincipalKey("ChatId", "MessageId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

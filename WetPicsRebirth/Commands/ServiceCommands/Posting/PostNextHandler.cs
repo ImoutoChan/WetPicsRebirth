@@ -3,18 +3,19 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories;
 using WetPicsRebirth.Infrastructure;
+using WetPicsRebirth.Services;
 
 namespace WetPicsRebirth.Commands.ServiceCommands.Posting
 {
@@ -95,7 +96,7 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
         private async Task PostNextForActress(Actress actress)
         {
             var list = await _popularListLoader.Load(actress.ImageSource, actress.Options);
-            var postIds = list.Select(x => x.Id).ToList();
+            var postIds = list.Select(x => (x.Id, x.Md5Hash)).ToList();
 
             var newId = await _postedMediaRepository.GetFirstNew(actress.ChatId, actress.ImageSource, postIds);
 
@@ -112,7 +113,8 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
                 actress.ChatId,
                 new InputOnlineFile(post.File),
                 caption,
-                ParseMode.Html);
+                ParseMode.Html,
+                replyMarkup: Keyboards.WithLikes(0));
 
             var fileId = sentPost.Photo
                 .OrderByDescending(x => x.Height)
@@ -125,11 +127,19 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
                 sentPost.MessageId,
                 fileId,
                 actress.ImageSource,
-                post.PostHeader.Id);
+                post.PostHeader.Id,
+                post.PostHeader.Md5Hash ?? GetHash(post.File));
+        }
+
+        private static string GetHash(Stream file)
+        {
+            file.Seek(0, SeekOrigin.Begin);
+            using MD5 md5 = MD5.Create();
+            return string.Join("", md5.ComputeHash(file).Select(x => x.ToString("X2"))).ToLowerInvariant();
         }
 
         private string EnrichCaption(string caption)
-            => $"{caption}\n<a href=\"{_channelLink}\">join</a> | <a href=\"{_accessLink}\">access</a>";
+            => $"{caption} | <a href=\"{_channelLink}\">join</a> | <a href=\"{_accessLink}\">access</a>";
 
         private static int GetScenePostNumber(long sceneId)
         {

@@ -48,7 +48,11 @@ namespace WetPicsRebirth.Data
                 .Entity<PostedMedia>()
                 .HasMany(x => x.Votes)
                 .WithOne(x => x!.PostedMedia!)
-                .HasForeignKey(x => x.PostedMediaId);
+                .HasForeignKey(x => new {x.ChatId, x.MessageId})
+                .HasPrincipalKey(x => new {x.ChatId, x.MessageId});
+
+            builder
+                .Entity<PostedMedia>().HasIndex(x => new { x.ChatId, x.ImageSource, x.PostId });
 
             builder
                 .Entity<User>()
@@ -62,7 +66,7 @@ namespace WetPicsRebirth.Data
 
             builder
                 .Entity<Vote>()
-                .HasKey(x => new { x.UserId, x.PostedMediaId });
+                .HasKey(x => new { x.ChatId, x.MessageId, x.UserId });
 
             base.OnModelCreating(builder);
         }

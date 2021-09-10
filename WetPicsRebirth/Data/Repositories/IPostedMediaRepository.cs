@@ -11,11 +11,12 @@ namespace WetPicsRebirth.Data.Repositories
             int messageId,
             string fileId,
             ImageSource imageSource,
-            int postId);
+            int postId,
+            string postHash);
 
         Task<int?> GetFirstNew(
             long chatId,
             ImageSource imageSource,
-            IReadOnlyCollection<int> postIds);
+            List<(int Id, string? Md5Hash)> postIdsWithHashes);
     }
 }
