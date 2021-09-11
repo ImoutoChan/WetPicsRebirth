@@ -36,7 +36,7 @@ namespace WetPicsRebirth
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<PixivConfiguration>(Configuration.GetSection("Pixiv"));
-            services.Configure<DanbooruConfiguration>(Configuration.GetSection("Danboou"));
+            services.Configure<DanbooruConfiguration>(Configuration.GetSection("Danbooru"));
 
             services.AddControllers().AddNewtonsoftJson();
             services.AddSwaggerGen(c =>

@@ -6,12 +6,12 @@ using WetPicsRebirth.EntryPoint.Service;
 namespace WetPicsRebirth.EntryPoint
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/wetpicsrebirth/update")] // 41461
     public class UpdateController : ControllerBase
     {
         private readonly INotificationService _notificationService;
 
-        public UpdateController(INotificationService notificationService) 
+        public UpdateController(INotificationService notificationService)
             => _notificationService = notificationService;
 
         [HttpPost]
