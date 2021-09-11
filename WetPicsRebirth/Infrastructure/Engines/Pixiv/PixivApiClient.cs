@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -88,7 +87,7 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             }
         }
 
-        public async Task<Stream> DownloadImage(string imageUrl)
+        public async Task<MeasuredStream> DownloadImage(string imageUrl)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, imageUrl);
 
@@ -102,7 +101,13 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadAsStreamAsync();
+            var length = response.Content.Headers.ContentLength;
+            if (!length.HasValue)
+            {
+                throw new Exception("Unexpected length");
+            }
+
+            return new (await response.Content.ReadAsStreamAsync(), length.Value);
         }
     }
 }

@@ -18,6 +18,7 @@ using WetPicsRebirth.Infrastructure;
 using WetPicsRebirth.Infrastructure.Engines;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
+using WetPicsRebirth.Infrastructure.ImageProcessing;
 using WetPicsRebirth.Jobs;
 using WetPicsRebirth.Services;
 
@@ -68,6 +69,7 @@ namespace WetPicsRebirth
             services.AddHttpClient<IEngineFactory, EngineFactory>();
             services.AddHttpClient<IPixivApiClient, PixivApiClient>();
             services.AddTransient<IPixivAuthorization, PixivAuthorization>();
+            services.AddImageProcessing();
 
             // mediator
             services.AddMediatR(typeof(Startup));
@@ -87,7 +89,7 @@ namespace WetPicsRebirth
             // quartz
             services.AddQuartz(c =>
             {
-                c.UseMicrosoftDependencyInjectionScopedJobFactory();
+                c.UseMicrosoftDependencyInjectionJobFactory();
                 c.AddJob<PostingJob>(j => j.WithIdentity(nameof(PostingJob)));
                 c.AddTrigger(t => t
                     .ForJob(nameof(PostingJob))

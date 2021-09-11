@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WetPicsRebirth.Data.Entities;
 
@@ -8,6 +9,8 @@ namespace WetPicsRebirth.Data
 {
     public class WetPicsRebirthDbContext : DbContext
     {
+        static WetPicsRebirthDbContext() => LinqToDBForEFTools.Initialize();
+
         public WetPicsRebirthDbContext(DbContextOptions<WetPicsRebirthDbContext> options)
             : base(options)
         {

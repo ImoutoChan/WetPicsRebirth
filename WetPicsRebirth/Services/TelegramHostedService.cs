@@ -29,7 +29,7 @@ namespace WetPicsRebirth.Services
             var address = _configuration.GetValue<string>("WebHookAddress");
 
             _logger.LogInformation("Removing WebHook");
-            await _telegramBotClient.DeleteWebhookAsync(cancellationToken);
+            await _telegramBotClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
 
             _logger.LogInformation("Setting WebHook to {Address}", address);
             await _telegramBotClient.SetWebhookAsync(
@@ -44,7 +44,7 @@ namespace WetPicsRebirth.Services
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            await _telegramBotClient.DeleteWebhookAsync(cancellationToken);
+            await _telegramBotClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
             _logger.LogInformation("WebHook removed");
         }
     }

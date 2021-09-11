@@ -15,6 +15,7 @@ using Telegram.Bot.Types.InputFiles;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories;
 using WetPicsRebirth.Infrastructure;
+using WetPicsRebirth.Infrastructure.ImageProcessing;
 using WetPicsRebirth.Services;
 
 namespace WetPicsRebirth.Commands.ServiceCommands.Posting
@@ -29,6 +30,8 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
         private readonly IPopularListLoader _popularListLoader;
         private readonly ITelegramBotClient _telegramBotClient;
         private readonly IPostedMediaRepository _postedMediaRepository;
+        private readonly ITelegramPreparer _telegramPreparer;
+
         private readonly string _channelLink;
         private readonly string _accessLink;
 
@@ -39,7 +42,8 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
             IPopularListLoader popularListLoader,
             ITelegramBotClient telegramBotClient,
             IPostedMediaRepository postedMediaRepository,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ITelegramPreparer telegramPreparer)
         {
             _scenesRepository = scenesRepository;
             _actressesRepository = actressesRepository;
@@ -47,6 +51,7 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
             _popularListLoader = popularListLoader;
             _telegramBotClient = telegramBotClient;
             _postedMediaRepository = postedMediaRepository;
+            _telegramPreparer = telegramPreparer;
             _channelLink = configuration.GetValue<string>("ChannelInviteLink");
             _accessLink = configuration.GetValue<string>("AccessLink");
         }
@@ -109,9 +114,11 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
             var caption = _popularListLoader.CreateCaption(actress.ImageSource, actress.Options, post);
             caption = EnrichCaption(caption);
 
+            var file = _telegramPreparer.Prepare(post.File, post.FileSize);
+
             var sentPost = await _telegramBotClient.SendPhotoAsync(
                 actress.ChatId,
-                new InputOnlineFile(post.File),
+                new InputOnlineFile(file),
                 caption,
                 ParseMode.Html,
                 replyMarkup: Keyboards.WithLikes(0));
@@ -129,6 +136,9 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
                 actress.ImageSource,
                 post.PostHeader.Id,
                 post.PostHeader.Md5Hash ?? GetHash(post.File));
+
+            await post.File.DisposeAsync();
+            await file.DisposeAsync();
         }
 
         private static string GetHash(Stream file)

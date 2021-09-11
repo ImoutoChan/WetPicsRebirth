@@ -9,6 +9,6 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
     {
         Task<IReadOnlyCollection<PixivPostHeader>> LoadTop(PixivTopType topType, int page = 1, int count = 100);
 
-        Task<Stream> DownloadImage(string imageUrl);
+        Task<MeasuredStream> DownloadImage(string imageUrl);
     }
 }

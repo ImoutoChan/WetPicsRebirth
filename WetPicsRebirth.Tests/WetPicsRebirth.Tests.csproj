@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
@@ -9,20 +9,31 @@
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions" Version="6.1.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="3.0.2">
+        <PackageReference Include="coverlet.collector" Version="3.1.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\WetPicsRebirth.Infrastructure.ImageProcessing\WetPicsRebirth.Infrastructure.ImageProcessing.csproj" />
       <ProjectReference Include="..\WetPicsRebirth\WetPicsRebirth.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="TestSubjects\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="TestSubjects\5777e304cc7f88558e769ede3d61c703.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

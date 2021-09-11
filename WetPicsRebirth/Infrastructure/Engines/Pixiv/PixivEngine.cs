@@ -34,7 +34,7 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
 
             var file = await _pixivApiClient.DownloadImage(pixivPostHeader.ImageUrl);
 
-            return new PixivPost(pixivPostHeader, file);
+            return new PixivPost(pixivPostHeader, file.Stream, file.Length);
         }
 
         public string CreateCaption(ImageSource source, string options, Post post)

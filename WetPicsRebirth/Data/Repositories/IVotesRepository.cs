@@ -5,6 +5,6 @@ namespace WetPicsRebirth.Data.Repositories
 {
     public interface IVotesRepository
     {
-        Task<int> AddOrRemove(Vote vote);
+        Task<int> AddOrIgnore(Vote vote);
     }
 }

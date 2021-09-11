@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WetPicsRebirth", "WetPicsRe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WetPicsRebirth.Tests", "WetPicsRebirth.Tests\WetPicsRebirth.Tests.csproj", "{1309FB55-2B54-434F-AFB6-23E7DECE5EAF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WetPicsRebirth.Infrastructure.ImageProcessing", "WetPicsRebirth.Infrastructure.ImageProcessing\WetPicsRebirth.Infrastructure.ImageProcessing.csproj", "{FB76AE84-C777-4A79-A74A-CE71CF8F9F5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{1309FB55-2B54-434F-AFB6-23E7DECE5EAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1309FB55-2B54-434F-AFB6-23E7DECE5EAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1309FB55-2B54-434F-AFB6-23E7DECE5EAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB76AE84-C777-4A79-A74A-CE71CF8F9F5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB76AE84-C777-4A79-A74A-CE71CF8F9F5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB76AE84-C777-4A79-A74A-CE71CF8F9F5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB76AE84-C777-4A79-A74A-CE71CF8F9F5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

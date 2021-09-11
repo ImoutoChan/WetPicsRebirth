@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WetPicsRebirth.Data.Entities;
@@ -14,24 +15,19 @@ namespace WetPicsRebirth.Data.Repositories
             _context = context;
         }
 
-        public async Task<int> AddOrRemove(Vote vote)
+        public async Task<int> AddOrIgnore(Vote vote)
         {
-            var exists = await _context.Votes.FirstOrDefaultAsync(x =>
-                x.ChatId == vote.ChatId && x.MessageId == vote.MessageId && x.UserId == vote.UserId);
+            var now = DateTimeOffset.Now;
 
-            if (exists != null)
-            {
-                _context.Votes.Remove(exists);
-            }
-            else
-            {
-                _context.Votes.Add(vote);
-            }
-            await _context.SaveChangesAsync();
+            var affected = await _context.Database.ExecuteSqlInterpolatedAsync(
+                $@"INSERT INTO ""Votes"" (""UserId"", ""ChatId"", ""MessageId"", ""AddedDate"", ""ModifiedDate"")
+                   VALUES ({vote.UserId}, {vote.ChatId}, {vote.MessageId}, {now}, {now})
+                   ON CONFLICT DO NOTHING");
 
-            return await _context.Votes
-                .Where(x => x.ChatId == vote.ChatId && x.MessageId == vote.MessageId)
-                .CountAsync();
+            if (affected > 0)
+                return await _context.Votes.CountAsync(x => x.ChatId == vote.ChatId && x.MessageId == vote.MessageId);
+
+            return -1;
         }
     }
 }

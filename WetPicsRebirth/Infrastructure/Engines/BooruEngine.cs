@@ -33,9 +33,17 @@ namespace WetPicsRebirth.Infrastructure.Engines
         public async Task<Post> LoadPost(PostHeader postHeader)
         {
             var post = await _loader.LoadPostAsync(postHeader.Id);
-            var file = await _httpClient.GetStreamAsync(post.OriginalUrl);
+            var response = await _httpClient.GetAsync(post.OriginalUrl);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            var length = response.Content.Headers.ContentLength;
 
-            return new Post(postHeader, post.OriginalUrl, file);
+            if (!length.HasValue)
+            {
+                throw new Exception("Unexpected length");
+            }
+
+            return new Post(postHeader, post.OriginalUrl, stream, length.Value);
         }
 
         public string CreateCaption(ImageSource source, string options, Post post)

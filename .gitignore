@@ -9,3 +9,5 @@
 /WetPicsRebirth.Tests/bin/*
 /WetPicsRebirth.Tests/obj/*
 /WetPicsRebirth/appsettings.Cache.json
+/WetPicsRebirth.Infrastructure.ImageProcessing/bin/*
+/WetPicsRebirth.Infrastructure.ImageProcessing/obj/*
