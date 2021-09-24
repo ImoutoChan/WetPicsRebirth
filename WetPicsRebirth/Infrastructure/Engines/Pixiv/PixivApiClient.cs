@@ -32,30 +32,25 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
 
         public async Task<IReadOnlyCollection<PixivPostHeader>> LoadTop(PixivTopType topType, int page = 1, int count = 100)
         {
-            const string url = "https://public-api.secure.pixiv.net/v1/ranking/all";
+            const string url = "https://app-api.pixiv.net/v1/illust/ranking";
 
             var param = new Dictionary<string, string>
             {
                 {"mode", topType.GetEnumDescription()},
-                {"page", page.ToString()},
-                {"per_page", count.ToString()},
-                {"include_stats", "1"},
-                {"include_sanity_level", "1"},
-                {"image_sizes", "large"},
-                {"profile_image_sizes", "px_50x50"}
+                {"filter", "for_ios"},
             };
 
             var responseContent = await GetAsync(url, param);
-            var rank = JToken.Parse(responseContent).SelectToken("response")?.ToObject<IReadOnlyCollection<Rank>>()
-                ?.FirstOrDefault();
+            var illustrations = JToken.Parse(responseContent)
+                ?.SelectToken("illusts")
+                ?.ToObject<IReadOnlyCollection<Illustration>>();
 
-            if (rank == null)
+            if (illustrations == null)
                 throw new Exception($"Unexpected pixiv response: {responseContent}");
 
-            return rank.Works.Select(x => x.Work)
-                .Select(x => new PixivPostHeader((int)x.Id!.Value, x.ImageUrls.Large, x.Title, x.User.Name))
+            return illustrations
+                .Select(x => new PixivPostHeader((int)x.Id, x.ImageUrls!.Large!, x.Title!, x.User!.Name!))
                 .ToList();
-
         }
 
         private async Task<string> GetAsync(
@@ -69,9 +64,11 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-            request.Headers.Referrer = new Uri("http://spapi.pixiv.net/");
             request.Headers.UserAgent.Clear();
-            request.Headers.UserAgent.Add(new ProductInfoHeaderValue("PixivIOSApp", "5.8.0"));
+            request.Headers.TryAddWithoutValidation("app-os", "ios");
+            request.Headers.TryAddWithoutValidation("app-os-version", "14.6");
+            request.Headers.TryAddWithoutValidation("User-Agent", "PixivIOSApp/7.13.3 (iOS 14.6; iPhone13,2)");
+
             request.Headers.Authorization = AuthenticationHeaderValue.Parse("Bearer " + token);
 
             try
@@ -96,7 +93,7 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             request.Headers.TryAddWithoutValidation("Accept-Language", "zh-cn,zh;q=0.7,ja;q=0.3");
             request.Headers.TryAddWithoutValidation("Accept-Encoding", "gzip,deflate");
             request.Headers.TryAddWithoutValidation("Accept-Charset", "gb18030,utf-8;q=0.7,*;q=0.7");
-            request.Headers.TryAddWithoutValidation("referer", "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=38889015");
+            request.Headers.TryAddWithoutValidation("referer", "https://app-api.pixiv.net/");
 
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();

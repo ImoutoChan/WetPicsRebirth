@@ -4,40 +4,40 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv.Models
 {
     public enum PixivTopType
     {
-        [Description("daily")]
+        [Description("day")]
         DailyGeneral,
 
-        [Description("daily_r18")]
+        [Description("day_r18")]
         DailyR18,
 
-        [Description("weekly")]
+        [Description("week")]
         WeeklyGeneral,
 
-        [Description("weekly_r18")]
+        [Description("week_r18")]
         WeeklyR18,
 
-        [Description("monthly")]
+        [Description("month")]
         Monthly,
 
-        [Description("rookie")]
+        [Description("week_rookie")]
         Rookie,
 
-        [Description("original")]
+        [Description("week_original")]
         Original,
 
-        [Description("male")]
+        [Description("day_male")]
         ByMaleGeneral,
 
-        [Description("male_r18")]
+        [Description("day_male_r18")]
         ByMaleR18,
 
-        [Description("female")]
+        [Description("day_female")]
         ByFemaleGeneral,
 
-        [Description("female_r18")]
+        [Description("day_female_r18")]
         ByFemaleR18,
 
-        [Description("r18g")]
+        [Description("week_r18g")]
         R18G
     }
 }
