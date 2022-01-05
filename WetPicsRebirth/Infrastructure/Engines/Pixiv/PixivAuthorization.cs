@@ -114,9 +114,12 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             var responsePart = JToken.Parse(json).SelectToken("response");
 
             return new PixivApiAuthInfo(
-                responsePart.SelectToken("access_token").Value<string>(),
-                responsePart.SelectToken("refresh_token").Value<string>(),
-                responsePart.SelectToken("expires_in").Value<int>());
+                responsePart?.SelectToken("access_token")?.Value<string>()
+                    ?? throw new Exception("Unable to retrieve access_token from pixiv response"),
+                responsePart?.SelectToken("refresh_token")?.Value<string>()
+                    ?? throw new Exception("Unable to retrieve refresh_token from pixiv response"),
+                responsePart?.SelectToken("expires_in")?.Value<int>()
+                    ?? throw new Exception("Unable to retrieve expires_in from pixiv response"));
         }
 
         private static async Task EnsureSuccessStatusCode(HttpResponseMessage response)
@@ -130,7 +133,7 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
             {
                 var content = await response.Content.ReadAsStringAsync();
 
-                var errorCode = JToken.Parse(content).SelectToken("errors").SelectToken("system").SelectToken("code").Value<int>();
+                var errorCode = JToken.Parse(content).SelectToken("errors")?.SelectToken("system")?.SelectToken("code")?.Value<int>();
 
                 const int invalidRefreshTokenErrorCode = 1508;
 

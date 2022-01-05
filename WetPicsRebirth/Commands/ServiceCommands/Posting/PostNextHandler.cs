@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NodaTime;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
@@ -75,9 +76,10 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
 
         private async Task PostNextForScene(Scene scene, IReadOnlyCollection<Actress> actresses)
         {
-            for (int i = 0; i < actresses.Count; i++)
+            for (var i = 0; i < actresses.Count; i++)
             {
-                var now = DateTimeOffset.Now;
+                var now = SystemClock.Instance.GetCurrentInstant();
+
                 var postNumber = GetScenePostNumber(scene.ChatId);
                 var selectedActress = actresses.ElementAt(postNumber % actresses.Count);
 
@@ -115,6 +117,7 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
             caption = EnrichCaption(caption);
 
             var file = _telegramPreparer.Prepare(post.File, post.FileSize);
+            var hash = post.PostHeader.Md5Hash ?? GetHash(post.File);
 
             var sentPost = await _telegramBotClient.SendPhotoAsync(
                 actress.ChatId,
@@ -123,7 +126,7 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
                 ParseMode.Html,
                 replyMarkup: Keyboards.WithLikes(0));
 
-            var fileId = sentPost.Photo
+            var fileId = sentPost.Photo!
                 .OrderByDescending(x => x.Height)
                 .ThenByDescending(x => x.Width)
                 .Select(x => x.FileId)
@@ -135,7 +138,7 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
                 fileId,
                 actress.ImageSource,
                 post.PostHeader.Id,
-                post.PostHeader.Md5Hash ?? GetHash(post.File));
+                hash);
 
             await post.File.DisposeAsync();
             await file.DisposeAsync();
@@ -144,8 +147,12 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting
         private static string GetHash(Stream file)
         {
             file.Seek(0, SeekOrigin.Begin);
-            using MD5 md5 = MD5.Create();
-            return string.Join("", md5.ComputeHash(file).Select(x => x.ToString("X2"))).ToLowerInvariant();
+
+            using var md5 = MD5.Create();
+            var result = string.Join("", md5.ComputeHash(file).Select(x => x.ToString("X2"))).ToLowerInvariant();
+            file.Seek(0, SeekOrigin.Begin);
+
+            return result;
         }
 
         private string EnrichCaption(string caption)

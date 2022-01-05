@@ -46,7 +46,7 @@ namespace WetPicsRebirth.Commands.UserCommands.Actresses
 
         protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
         {
-            var parameters = message.Text.Split(' ');
+            var parameters = message.Text?.Split(' ') ?? Array.Empty<string>();
 
             if (parameters.Length != 4)
             {
@@ -71,7 +71,7 @@ namespace WetPicsRebirth.Commands.UserCommands.Actresses
                 return;
             }
 
-            if (!await CheckOnAdmin(targetId, message.From.Id))
+            if (!await CheckOnAdmin(targetId, message.From!.Id))
             {
                 await _telegramBotClient.SendTextMessageAsync(
                     message.Chat.Id,

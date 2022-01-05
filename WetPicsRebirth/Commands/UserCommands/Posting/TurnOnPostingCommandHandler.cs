@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
@@ -37,7 +38,7 @@ namespace WetPicsRebirth.Commands.UserCommands.Posting
 
         protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
         {
-            var parameters = message.Text.Split(' ');
+            var parameters = message.Text?.Split(' ') ?? Array.Empty<string>();
 
             if (parameters.Length != 3)
             {
@@ -71,7 +72,7 @@ namespace WetPicsRebirth.Commands.UserCommands.Posting
                 return;
             }
 
-            if (!await CheckOnAdmin(targetId, message.From.Id))
+            if (!await CheckOnAdmin(targetId, message.From!.Id))
             {
                 await _telegramBotClient.SendTextMessageAsync(
                     message.Chat.Id,

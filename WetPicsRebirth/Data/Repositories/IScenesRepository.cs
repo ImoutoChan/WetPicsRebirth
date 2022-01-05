@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NodaTime;
 using WetPicsRebirth.Data.Entities;
 
 namespace WetPicsRebirth.Data.Repositories
@@ -9,7 +10,7 @@ namespace WetPicsRebirth.Data.Repositories
     {
         Task CreateOrUpdate(long targetChatId, int minInterval);
 
-        Task SetPostedAt(long targetChatId, DateTimeOffset now);
+        Task SetPostedAt(long targetChatId, Instant now);
 
         Task Disable(long targetChatId);
 

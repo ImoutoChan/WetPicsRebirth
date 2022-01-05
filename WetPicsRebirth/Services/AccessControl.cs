@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
@@ -18,14 +19,14 @@ namespace WetPicsRebirth.Services
         public async Task<bool> CheckAccess(INotification notification)
             => notification switch
             {
-                MessageNotification message => await CheckAccess(message.Message.From.Id),
+                MessageNotification message => await CheckAccess(message.Message.From!.Id),
                 CallbackNotification => true,
                 _ => false
             };
 
-        private Task<bool> CheckAccess(int userId)
+        private Task<bool> CheckAccess(long userId)
         {
-            var whitelist = _configuration.GetSection("WhiteList").Get<int[]>();
+            var whitelist = _configuration.GetSection("WhiteList").Get<long[]>() ?? Array.Empty<long>();
 
             return Task.FromResult(whitelist.Contains(userId));
         }

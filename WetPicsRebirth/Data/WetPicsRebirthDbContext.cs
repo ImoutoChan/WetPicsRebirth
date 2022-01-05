@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using WetPicsRebirth.Data.Entities;
 
 namespace WetPicsRebirth.Data
@@ -78,16 +79,18 @@ namespace WetPicsRebirth.Data
             bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = new CancellationToken())
         {
+            var now = SystemClock.Instance.GetCurrentInstant();
+
             foreach (var entityEntry in ChangeTracker.Entries<IEntityBase>())
             {
                 switch (entityEntry.State)
                 {
                     case EntityState.Added:
-                        entityEntry.Entity.AddedDate = DateTimeOffset.Now;
-                        entityEntry.Entity.ModifiedDate = DateTimeOffset.Now;
+                        entityEntry.Entity.AddedDate = now;
+                        entityEntry.Entity.ModifiedDate = now;
                         break;
                     case EntityState.Modified:
-                        entityEntry.Entity.ModifiedDate = DateTimeOffset.Now;
+                        entityEntry.Entity.ModifiedDate = now;
                         break;
                 }
             }

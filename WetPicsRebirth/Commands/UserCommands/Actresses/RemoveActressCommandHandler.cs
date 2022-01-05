@@ -39,7 +39,7 @@ namespace WetPicsRebirth.Commands.UserCommands.Actresses
 
         protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
         {
-            var parameters = message.Text.Split(' ');
+            var parameters = message.Text?.Split(' ') ?? Array.Empty<string>();
 
             if (parameters.Length != 1)
             {

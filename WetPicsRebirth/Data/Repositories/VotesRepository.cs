@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using WetPicsRebirth.Data.Entities;
 
 namespace WetPicsRebirth.Data.Repositories
@@ -17,7 +18,7 @@ namespace WetPicsRebirth.Data.Repositories
 
         public async Task<int> AddOrIgnore(Vote vote)
         {
-            var now = DateTimeOffset.Now;
+            var now = SystemClock.Instance.GetCurrentInstant();
 
             var affected = await _context.Database.ExecuteSqlInterpolatedAsync(
                 $@"INSERT INTO ""Votes"" (""UserId"", ""ChatId"", ""MessageId"", ""AddedDate"", ""ModifiedDate"")

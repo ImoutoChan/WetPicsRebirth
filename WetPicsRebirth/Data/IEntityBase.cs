@@ -1,11 +1,12 @@
 ﻿using System;
+using NodaTime;
 
 namespace WetPicsRebirth.Data
 {
     public interface IEntityBase
     {
-        DateTimeOffset AddedDate { get; set; }
+        Instant AddedDate { get; set; }
 
-        DateTimeOffset ModifiedDate { get; set; }
+        Instant ModifiedDate { get; set; }
     }
 }

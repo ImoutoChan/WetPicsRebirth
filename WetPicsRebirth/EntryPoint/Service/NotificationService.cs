@@ -27,7 +27,7 @@ namespace WetPicsRebirth.EntryPoint.Service
 
         public async Task NotifyAsync(Update update)
         {
-            _logger.LogInformation($"Notification about {update.Type}");
+            _logger.LogInformation("Notification about {Type}", update.Type);
 
             try
             {
@@ -44,11 +44,11 @@ namespace WetPicsRebirth.EntryPoint.Service
             }
         }
 
-        private static INotification? GetNotification(Update update) 
+        private static INotification? GetNotification(Update update)
             => update.Type switch
             {
-                UpdateType.CallbackQuery => new CallbackNotification(update.CallbackQuery),
-                UpdateType.Message => new MessageNotification(update.Message),
+                UpdateType.CallbackQuery => new CallbackNotification(update.CallbackQuery!),
+                UpdateType.Message => new MessageNotification(update.Message!),
                 _ => null
             };
     }

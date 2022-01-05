@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
 
 namespace WetPicsRebirth.Commands.UserCommands.Abstract
@@ -52,14 +53,14 @@ namespace WetPicsRebirth.Commands.UserCommands.Abstract
                     "An error occurred while processing message {Message} {ChatId} {UserId}",
                     notification.Message.Text,
                     notification.Message.Chat.Id,
-                    notification.Message.From.Id);
+                    notification.Message.From?.Id);
             }
         }
 
         private async Task<string?> GetCommand(Message message, CancellationToken cancellationToken)
         {
             var me = await GetUser(cancellationToken);
-            var botUsername = me.Username;
+            var botUsername = me.Username!;
 
             var text = message.Text;
 
@@ -90,7 +91,7 @@ namespace WetPicsRebirth.Commands.UserCommands.Abstract
 
         protected abstract Task Handle(Message message, string? command, CancellationToken cancellationToken);
 
-        protected async Task<bool> CheckOnAdmin(long targetChatId, int userId)
+        protected async Task<bool> CheckOnAdmin(long targetChatId, long userId)
         {
             try
             {
@@ -98,7 +99,11 @@ namespace WetPicsRebirth.Commands.UserCommands.Abstract
 
                 var isAdmin = admins.FirstOrDefault(x => x.User.Id == userId);
 
-                return isAdmin != null && isAdmin.CanPostMessages != false;
+                return isAdmin is ChatMemberAdministrator
+                {
+                    Status: ChatMemberStatus.Administrator,
+                    CanPostMessages: true
+                };
             }
             catch (ApiRequestException ex)
                 when (ex.Message == "Bad Request: there is no administrators in the private chat")

@@ -84,7 +84,8 @@ namespace WetPicsRebirth
 
             // data
             services.AddDbContext<WetPicsRebirthDbContext>(
-                x => x.UseNpgsql(Configuration.GetConnectionString("WetPicsRebirthOnPostgres")));
+                x => x.UseNpgsql(Configuration.GetConnectionString("WetPicsRebirthOnPostgres"),
+                    builder => builder.UseNodaTime()));
 
             // quartz
             services.AddQuartz(c =>

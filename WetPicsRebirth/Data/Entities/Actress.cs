@@ -1,4 +1,5 @@
 ﻿using System;
+using NodaTime;
 
 namespace WetPicsRebirth.Data.Entities
 {
@@ -23,9 +24,9 @@ namespace WetPicsRebirth.Data.Entities
 
         public string Options { get; private set; }
 
-        public DateTimeOffset AddedDate { get; set; }
+        public Instant AddedDate { get; set; }
 
-        public DateTimeOffset ModifiedDate { get; set; }
+        public Instant ModifiedDate { get; set; }
 
 
         public Scene? Scene { get; set; }

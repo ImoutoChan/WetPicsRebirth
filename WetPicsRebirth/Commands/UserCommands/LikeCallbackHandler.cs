@@ -32,7 +32,7 @@ namespace WetPicsRebirth.Commands.UserCommands
             if (notification.CallbackQuery.Data != LikeData)
                 return;
 
-            var messageId = notification.CallbackQuery.Message.MessageId;
+            var messageId = notification.CallbackQuery.Message!.MessageId;
             var chatId = notification.CallbackQuery.Message.Chat.Id;
             var userId = notification.CallbackQuery.From.Id;
 

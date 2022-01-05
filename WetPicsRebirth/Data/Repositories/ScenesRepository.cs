@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using WetPicsRebirth.Data.Entities;
 
 namespace WetPicsRebirth.Data.Repositories
@@ -19,7 +20,7 @@ namespace WetPicsRebirth.Data.Repositories
 
         public async Task<IReadOnlyCollection<Scene>> GetEnabledAndReady()
         {
-            var now = DateTimeOffset.Now;
+            var now = SystemClock.Instance.GetCurrentInstant();
 
             var enabled = await _context.Scenes
                 .Where(x => x.Enabled)
@@ -27,7 +28,7 @@ namespace WetPicsRebirth.Data.Repositories
 
             return enabled
                 .Where(x => x.LastPostedTime != null)
-                .Where(x => x.LastPostedTime!.Value.AddMinutes(x.MinutesInterval) <= now)
+                .Where(x => x.LastPostedTime!.Value.Plus(Duration.FromMinutes(x.MinutesInterval)) <= now)
                 .ToList();
         }
 
@@ -39,7 +40,7 @@ namespace WetPicsRebirth.Data.Repositories
 
             if (existing == null)
             {
-                await _context.Scenes.AddAsync(new Scene(targetChatId, minInterval, DateTimeOffset.MinValue, true));
+                await _context.Scenes.AddAsync(new Scene(targetChatId, minInterval, Instant.MinValue, true));
             }
             else
             {
@@ -50,7 +51,7 @@ namespace WetPicsRebirth.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task SetPostedAt(long targetChatId, DateTimeOffset now)
+        public async Task SetPostedAt(long targetChatId, Instant now)
         {
             var existing = await _context.Scenes
                 .Where(x => x.ChatId == targetChatId)

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using NodaTime;
 
 namespace WetPicsRebirth.Data.Entities
 {
     public class User : IEntityBase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public string? FirstName { get; set; }
 
@@ -15,9 +16,9 @@ namespace WetPicsRebirth.Data.Entities
 
         public string? Username { get; set; }
 
-        public DateTimeOffset AddedDate { get; set; }
+        public Instant AddedDate { get; set; }
 
-        public DateTimeOffset ModifiedDate { get; set; }
+        public Instant ModifiedDate { get; set; }
 
 
         public IReadOnlyCollection<Vote>? Votes { get; set; }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WetPicsRebirth.Data;
@@ -11,9 +12,10 @@ using WetPicsRebirth.Data;
 namespace WetPicsRebirth.Migrations
 {
     [DbContext(typeof(WetPicsRebirthDbContext))]
-    partial class WetPicsRebirthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220105161351_ChangeUserIdFromIntToLong")]
+    partial class ChangeUserIdFromIntToLong
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +50,7 @@ namespace WetPicsRebirth.Migrations
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("Actresses", (string)null);
+                    b.ToTable("Actresses");
                 });
 
             modelBuilder.Entity("WetPicsRebirth.Data.Entities.PostedMedia", b =>
@@ -87,7 +89,7 @@ namespace WetPicsRebirth.Migrations
 
                     b.HasIndex("ChatId", "ImageSource", "PostId");
 
-                    b.ToTable("PostedMedia", (string)null);
+                    b.ToTable("PostedMedia");
                 });
 
             modelBuilder.Entity("WetPicsRebirth.Data.Entities.Scene", b =>
@@ -112,7 +114,7 @@ namespace WetPicsRebirth.Migrations
 
                     b.HasKey("ChatId");
 
-                    b.ToTable("Scenes", (string)null);
+                    b.ToTable("Scenes");
                 });
 
             modelBuilder.Entity("WetPicsRebirth.Data.Entities.User", b =>
@@ -137,7 +139,7 @@ namespace WetPicsRebirth.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("WetPicsRebirth.Data.Entities.Vote", b =>
@@ -161,7 +163,7 @@ namespace WetPicsRebirth.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Votes", (string)null);
+                    b.ToTable("Votes");
                 });
 
             modelBuilder.Entity("WetPicsRebirth.Data.Entities.Actress", b =>
