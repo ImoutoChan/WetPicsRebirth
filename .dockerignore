@@ -23,5 +23,5 @@
 **/values.dev.yaml
 LICENSE
 README.md
-WetPicsRebirth/appsettings.Development.json
-WetPicsRebirth/appsettings.Cache.json
+Source/WetPicsRebirth/appsettings.Development.json
+Source/WetPicsRebirth/appsettings.Cache.json
