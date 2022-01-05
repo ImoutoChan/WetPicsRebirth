@@ -8,66 +8,65 @@ using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Infrastructure.Models;
 
-namespace WetPicsRebirth.Infrastructure.Engines
+namespace WetPicsRebirth.Infrastructure.Engines;
+
+public class BooruEngine : IPopularListLoaderEngine
 {
-    public class BooruEngine : IPopularListLoaderEngine
+    private readonly IBooruAsyncLoader _loader;
+    private readonly HttpClient _httpClient;
+
+    public BooruEngine(IBooruAsyncLoader booruAsyncLoader, HttpClient httpClient)
     {
-        private readonly IBooruAsyncLoader _loader;
-        private readonly HttpClient _httpClient;
+        _loader = booruAsyncLoader;
+        _httpClient = httpClient;
+    }
 
-        public BooruEngine(IBooruAsyncLoader booruAsyncLoader, HttpClient httpClient)
+    public async Task<IReadOnlyCollection<PostHeader>> LoadPopularList(string options)
+    {
+        var popularType = GetPopularType(options);
+
+        var popular = await _loader.LoadPopularAsync(popularType);
+
+        return popular.Results.Select(x => new PostHeader(x.Id, x.Md5)).ToList();
+    }
+
+    public async Task<Post> LoadPost(PostHeader postHeader)
+    {
+        var post = await _loader.LoadPostAsync(postHeader.Id);
+        var response = await _httpClient.GetAsync(post.OriginalUrl);
+        response.EnsureSuccessStatusCode();
+        var stream = await response.Content.ReadAsStreamAsync();
+        var length = response.Content.Headers.ContentLength;
+
+        if (!length.HasValue)
         {
-            _loader = booruAsyncLoader;
-            _httpClient = httpClient;
+            throw new Exception("Unexpected length");
         }
 
-        public async Task<IReadOnlyCollection<PostHeader>> LoadPopularList(string options)
+        return new Post(postHeader, post.OriginalUrl, stream, length.Value);
+    }
+
+    public string CreateCaption(ImageSource source, string options, Post post)
+    {
+        var type = GetPopularType(options).MakeAdverb().ToLower();
+
+        return source switch
         {
-            var popularType = GetPopularType(options);
+            ImageSource.Danbooru => $"<a href=\"https://danbooru.donmai.us/posts/{post.PostHeader.Id}\">danbooru {type}</a>",
+            ImageSource.Yandere => $"<a href=\"https://yande.re/post/show/{post.PostHeader.Id}\">yandere {type}</a>",
+            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+        };
+    }
 
-            var popular = await _loader.LoadPopularAsync(popularType);
-
-            return popular.Results.Select(x => new PostHeader(x.Id, x.Md5)).ToList();
-        }
-
-        public async Task<Post> LoadPost(PostHeader postHeader)
+    private static PopularType GetPopularType(string options)
+    {
+        var popularType = options switch
         {
-            var post = await _loader.LoadPostAsync(postHeader.Id);
-            var response = await _httpClient.GetAsync(post.OriginalUrl);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var length = response.Content.Headers.ContentLength;
-
-            if (!length.HasValue)
-            {
-                throw new Exception("Unexpected length");
-            }
-
-            return new Post(postHeader, post.OriginalUrl, stream, length.Value);
-        }
-
-        public string CreateCaption(ImageSource source, string options, Post post)
-        {
-            var type = GetPopularType(options).MakeAdverb().ToLower();
-
-            return source switch
-            {
-                ImageSource.Danbooru => $"<a href=\"https://danbooru.donmai.us/posts/{post.PostHeader.Id}\">danbooru {type}</a>",
-                ImageSource.Yandere => $"<a href=\"https://yande.re/post/show/{post.PostHeader.Id}\">yandere {type}</a>",
-                _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
-            };
-        }
-
-        private static PopularType GetPopularType(string options)
-        {
-            var popularType = options switch
-            {
-                "month" => PopularType.Month,
-                "week" => PopularType.Week,
-                "day" => PopularType.Day,
-                _ => PopularType.Day
-            };
-            return popularType;
-        }
+            "month" => PopularType.Month,
+            "week" => PopularType.Week,
+            "day" => PopularType.Day,
+            _ => PopularType.Day
+        };
+        return popularType;
     }
 }

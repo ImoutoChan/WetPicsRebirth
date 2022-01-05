@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using WetPicsRebirth.Data.Entities;
 
-namespace WetPicsRebirth.Data.Repositories
+namespace WetPicsRebirth.Data.Repositories;
+
+public interface IVotesRepository
 {
-    public interface IVotesRepository
-    {
-        Task<int> AddOrIgnore(Vote vote);
-    }
+    Task<int> AddOrIgnore(Vote vote);
 }

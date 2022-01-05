@@ -1,9 +1,8 @@
 ﻿using WetPicsRebirth.Data.Entities;
 
-namespace WetPicsRebirth.Infrastructure
+namespace WetPicsRebirth.Infrastructure;
+
+public interface IEngineFactory
 {
-    public interface IEngineFactory
-    {
-        IPopularListLoaderEngine Get(ImageSource imageSource);
-    }
+    IPopularListLoaderEngine Get(ImageSource imageSource);
 }

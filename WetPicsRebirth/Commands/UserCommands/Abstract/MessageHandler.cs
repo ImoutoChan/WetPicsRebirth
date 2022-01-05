@@ -11,110 +11,109 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
 
-namespace WetPicsRebirth.Commands.UserCommands.Abstract
+namespace WetPicsRebirth.Commands.UserCommands.Abstract;
+
+public abstract class MessageHandler : IMessageHandler
 {
-    public abstract class MessageHandler : IMessageHandler
+    private const string MeMemoryCacheKey = "_meMemoryCacheKey";
+
+    private readonly IMemoryCache _memoryCache;
+    private readonly ILogger _logger;
+    private readonly ITelegramBotClient _telegramBotClient;
+    private readonly string _handlerName;
+
+    protected MessageHandler(
+        ITelegramBotClient telegramBotClient,
+        ILogger logger,
+        IMemoryCache memoryCache)
     {
-        private const string MeMemoryCacheKey = "_meMemoryCacheKey";
+        _memoryCache = memoryCache;
+        _telegramBotClient = telegramBotClient;
+        _logger = logger;
 
-        private readonly IMemoryCache _memoryCache;
-        private readonly ILogger _logger;
-        private readonly ITelegramBotClient _telegramBotClient;
-        private readonly string _handlerName;
+        _handlerName = GetType().FullName!;
+    }
 
-        protected MessageHandler(
-            ITelegramBotClient telegramBotClient,
-            ILogger logger,
-            IMemoryCache memoryCache)
+    public async Task Handle(MessageNotification notification, CancellationToken cancellationToken)
+    {
+        try
         {
-            _memoryCache = memoryCache;
-            _telegramBotClient = telegramBotClient;
-            _logger = logger;
+            var command = await GetCommand(notification.Message, cancellationToken);
 
-            _handlerName = GetType().FullName!;
+            if (!WantHandle(notification.Message, command))
+                return;
+
+            _logger.LogInformation("Command received {Command} by {Handler}", command, _handlerName);
+            await Handle(notification.Message, command, cancellationToken);
         }
-
-        public async Task Handle(MessageNotification notification, CancellationToken cancellationToken)
+        catch (Exception e)
         {
-            try
-            {
-                var command = await GetCommand(notification.Message, cancellationToken);
-
-                if (!WantHandle(notification.Message, command))
-                    return;
-
-                _logger.LogInformation("Command received {Command} by {Handler}", command, _handlerName);
-                await Handle(notification.Message, command, cancellationToken);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(
-                    e,
-                    "An error occurred while processing message {Message} {ChatId} {UserId}",
-                    notification.Message.Text,
-                    notification.Message.Chat.Id,
-                    notification.Message.From?.Id);
-            }
+            _logger.LogError(
+                e,
+                "An error occurred while processing message {Message} {ChatId} {UserId}",
+                notification.Message.Text,
+                notification.Message.Chat.Id,
+                notification.Message.From?.Id);
         }
+    }
 
-        private async Task<string?> GetCommand(Message message, CancellationToken cancellationToken)
+    private async Task<string?> GetCommand(Message message, CancellationToken cancellationToken)
+    {
+        var me = await GetUser(cancellationToken);
+        var botUsername = me.Username!;
+
+        var text = message.Text;
+
+        if (string.IsNullOrWhiteSpace(text) || !text.StartsWith("/"))
+            return null;
+
+        var firstWord = text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).First();
+        var isCommandWithId = firstWord.Contains('@') && firstWord.EndsWith(botUsername);
+        var command = isCommandWithId ? firstWord.Split('@').First() : firstWord;
+
+        return command;
+    }
+
+    private async Task<User> GetUser(CancellationToken cancellationToken)
+    {
+        return await _memoryCache.GetOrCreateAsync(
+            MeMemoryCacheKey,
+            entry =>
+            {
+                entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+                return _telegramBotClient.GetMeAsync(cancellationToken);
+            });
+    }
+
+    public virtual IEnumerable<string> ProvidedCommands => Array.Empty<string>();
+
+    protected abstract bool WantHandle(Message message, string? command);
+
+    protected abstract Task Handle(Message message, string? command, CancellationToken cancellationToken);
+
+    protected async Task<bool> CheckOnAdmin(long targetChatId, long userId)
+    {
+        try
         {
-            var me = await GetUser(cancellationToken);
-            var botUsername = me.Username!;
+            var admins = await _telegramBotClient.GetChatAdministratorsAsync(new ChatId(targetChatId));
 
-            var text = message.Text;
+            var isAdmin = admins.FirstOrDefault(x => x.User.Id == userId);
 
-            if (string.IsNullOrWhiteSpace(text) || !text.StartsWith("/"))
-                return null;
-
-            var firstWord = text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).First();
-            var isCommandWithId = firstWord.Contains('@') && firstWord.EndsWith(botUsername);
-            var command = isCommandWithId ? firstWord.Split('@').First() : firstWord;
-
-            return command;
+            return isAdmin is ChatMemberAdministrator
+            {
+                Status: ChatMemberStatus.Administrator,
+                CanPostMessages: true
+            };
         }
-
-        private async Task<User> GetUser(CancellationToken cancellationToken)
+        catch (ApiRequestException ex)
+            when (ex.Message == "Bad Request: there is no administrators in the private chat")
         {
-            return await _memoryCache.GetOrCreateAsync(
-                MeMemoryCacheKey,
-                entry =>
-                {
-                    entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
-                    return _telegramBotClient.GetMeAsync(cancellationToken);
-                });
+            // target chat is private chat
+            return true;
         }
-
-        public virtual IEnumerable<string> ProvidedCommands => Array.Empty<string>();
-
-        protected abstract bool WantHandle(Message message, string? command);
-
-        protected abstract Task Handle(Message message, string? command, CancellationToken cancellationToken);
-
-        protected async Task<bool> CheckOnAdmin(long targetChatId, long userId)
+        catch
         {
-            try
-            {
-                var admins = await _telegramBotClient.GetChatAdministratorsAsync(new ChatId(targetChatId));
-
-                var isAdmin = admins.FirstOrDefault(x => x.User.Id == userId);
-
-                return isAdmin is ChatMemberAdministrator
-                {
-                    Status: ChatMemberStatus.Administrator,
-                    CanPostMessages: true
-                };
-            }
-            catch (ApiRequestException ex)
-                when (ex.Message == "Bad Request: there is no administrators in the private chat")
-            {
-                // target chat is private chat
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

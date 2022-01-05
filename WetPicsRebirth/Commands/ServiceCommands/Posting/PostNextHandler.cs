@@ -19,149 +19,148 @@ using WetPicsRebirth.Infrastructure;
 using WetPicsRebirth.Infrastructure.ImageProcessing;
 using WetPicsRebirth.Services;
 
-namespace WetPicsRebirth.Commands.ServiceCommands.Posting
+namespace WetPicsRebirth.Commands.ServiceCommands.Posting;
+
+public class PostNextHandler : IRequestHandler<PostNext>
 {
-    public class PostNextHandler : IRequestHandler<PostNext>
+    private static readonly ConcurrentDictionary<long, int> ScenePostNumbers = new();
+
+    private readonly IActressesRepository _actressesRepository;
+    private readonly ILogger<PostNextHandler> _logger;
+    private readonly IScenesRepository _scenesRepository;
+    private readonly IPopularListLoader _popularListLoader;
+    private readonly ITelegramBotClient _telegramBotClient;
+    private readonly IPostedMediaRepository _postedMediaRepository;
+    private readonly ITelegramPreparer _telegramPreparer;
+
+    private readonly string _channelLink;
+    private readonly string _accessLink;
+
+    public PostNextHandler(
+        IScenesRepository scenesRepository,
+        IActressesRepository actressesRepository,
+        ILogger<PostNextHandler> logger,
+        IPopularListLoader popularListLoader,
+        ITelegramBotClient telegramBotClient,
+        IPostedMediaRepository postedMediaRepository,
+        IConfiguration configuration,
+        ITelegramPreparer telegramPreparer)
     {
-        private static readonly ConcurrentDictionary<long, int> ScenePostNumbers = new();
+        _scenesRepository = scenesRepository;
+        _actressesRepository = actressesRepository;
+        _logger = logger;
+        _popularListLoader = popularListLoader;
+        _telegramBotClient = telegramBotClient;
+        _postedMediaRepository = postedMediaRepository;
+        _telegramPreparer = telegramPreparer;
+        _channelLink = configuration.GetValue<string>("ChannelInviteLink");
+        _accessLink = configuration.GetValue<string>("AccessLink");
+    }
 
-        private readonly IActressesRepository _actressesRepository;
-        private readonly ILogger<PostNextHandler> _logger;
-        private readonly IScenesRepository _scenesRepository;
-        private readonly IPopularListLoader _popularListLoader;
-        private readonly ITelegramBotClient _telegramBotClient;
-        private readonly IPostedMediaRepository _postedMediaRepository;
-        private readonly ITelegramPreparer _telegramPreparer;
+    public async Task<Unit> Handle(PostNext request, CancellationToken cancellationToken)
+    {
+        var readyScenes = await _scenesRepository.GetEnabledAndReady();
 
-        private readonly string _channelLink;
-        private readonly string _accessLink;
-
-        public PostNextHandler(
-            IScenesRepository scenesRepository,
-            IActressesRepository actressesRepository,
-            ILogger<PostNextHandler> logger,
-            IPopularListLoader popularListLoader,
-            ITelegramBotClient telegramBotClient,
-            IPostedMediaRepository postedMediaRepository,
-            IConfiguration configuration,
-            ITelegramPreparer telegramPreparer)
+        foreach (var scene in readyScenes)
         {
-            _scenesRepository = scenesRepository;
-            _actressesRepository = actressesRepository;
-            _logger = logger;
-            _popularListLoader = popularListLoader;
-            _telegramBotClient = telegramBotClient;
-            _postedMediaRepository = postedMediaRepository;
-            _telegramPreparer = telegramPreparer;
-            _channelLink = configuration.GetValue<string>("ChannelInviteLink");
-            _accessLink = configuration.GetValue<string>("AccessLink");
+            var actresses = await _actressesRepository.GetForChat(scene.ChatId);
+
+            if (actresses.Count == 0)
+                continue;
+
+            await PostNextForScene(scene, actresses);
         }
 
-        public async Task<Unit> Handle(PostNext request, CancellationToken cancellationToken)
+        return Unit.Value;
+    }
+
+    private async Task PostNextForScene(Scene scene, IReadOnlyCollection<Actress> actresses)
+    {
+        for (var i = 0; i < actresses.Count; i++)
         {
-            var readyScenes = await _scenesRepository.GetEnabledAndReady();
+            var now = SystemClock.Instance.GetCurrentInstant();
 
-            foreach (var scene in readyScenes)
+            var postNumber = GetScenePostNumber(scene.ChatId);
+            var selectedActress = actresses.ElementAt(postNumber % actresses.Count);
+
+            try
             {
-                var actresses = await _actressesRepository.GetForChat(scene.ChatId);
-
-                if (actresses.Count == 0)
-                    continue;
-
-                await PostNextForScene(scene, actresses);
+                await PostNextForActress(selectedActress);
+                await _scenesRepository.SetPostedAt(scene.ChatId, now);
+                break;
             }
-
-            return Unit.Value;
-        }
-
-        private async Task PostNextForScene(Scene scene, IReadOnlyCollection<Actress> actresses)
-        {
-            for (var i = 0; i < actresses.Count; i++)
+            catch (Exception e)
             {
-                var now = SystemClock.Instance.GetCurrentInstant();
-
-                var postNumber = GetScenePostNumber(scene.ChatId);
-                var selectedActress = actresses.ElementAt(postNumber % actresses.Count);
-
-                try
-                {
-                    await PostNextForActress(selectedActress);
-                    await _scenesRepository.SetPostedAt(scene.ChatId, now);
-                    break;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(
-                        e,
-                        "Unable to post for actress {ImageSource} {ChatId}",
-                        selectedActress.ImageSource,
-                        selectedActress.ChatId);
-                }
+                _logger.LogError(
+                    e,
+                    "Unable to post for actress {ImageSource} {ChatId}",
+                    selectedActress.ImageSource,
+                    selectedActress.ChatId);
             }
         }
+    }
 
-        private async Task PostNextForActress(Actress actress)
+    private async Task PostNextForActress(Actress actress)
+    {
+        var list = await _popularListLoader.Load(actress.ImageSource, actress.Options);
+        var postIds = list.Select(x => (x.Id, x.Md5Hash)).ToList();
+
+        var newId = await _postedMediaRepository.GetFirstNew(actress.ChatId, actress.ImageSource, postIds);
+
+        if (newId == null)
         {
-            var list = await _popularListLoader.Load(actress.ImageSource, actress.Options);
-            var postIds = list.Select(x => (x.Id, x.Md5Hash)).ToList();
-
-            var newId = await _postedMediaRepository.GetFirstNew(actress.ChatId, actress.ImageSource, postIds);
-
-            if (newId == null)
-            {
-                throw new Exception("No new images in actress");
-            }
-
-            var post = await _popularListLoader.LoadPost(actress.ImageSource, list.First(x => x.Id == newId.Value));
-            var caption = _popularListLoader.CreateCaption(actress.ImageSource, actress.Options, post);
-            caption = EnrichCaption(caption);
-
-            var file = _telegramPreparer.Prepare(post.File, post.FileSize);
-            var hash = post.PostHeader.Md5Hash ?? GetHash(post.File);
-
-            var sentPost = await _telegramBotClient.SendPhotoAsync(
-                actress.ChatId,
-                new InputOnlineFile(file),
-                caption,
-                ParseMode.Html,
-                replyMarkup: Keyboards.WithLikes(0));
-
-            var fileId = sentPost.Photo!
-                .OrderByDescending(x => x.Height)
-                .ThenByDescending(x => x.Width)
-                .Select(x => x.FileId)
-                .First();
-
-            await _postedMediaRepository.Add(
-                actress.ChatId,
-                sentPost.MessageId,
-                fileId,
-                actress.ImageSource,
-                post.PostHeader.Id,
-                hash);
-
-            await post.File.DisposeAsync();
-            await file.DisposeAsync();
+            throw new Exception("No new images in actress");
         }
 
-        private static string GetHash(Stream file)
-        {
-            file.Seek(0, SeekOrigin.Begin);
+        var post = await _popularListLoader.LoadPost(actress.ImageSource, list.First(x => x.Id == newId.Value));
+        var caption = _popularListLoader.CreateCaption(actress.ImageSource, actress.Options, post);
+        caption = EnrichCaption(caption);
 
-            using var md5 = MD5.Create();
-            var result = string.Join("", md5.ComputeHash(file).Select(x => x.ToString("X2"))).ToLowerInvariant();
-            file.Seek(0, SeekOrigin.Begin);
+        var file = _telegramPreparer.Prepare(post.File, post.FileSize);
+        var hash = post.PostHeader.Md5Hash ?? GetHash(post.File);
 
-            return result;
-        }
+        var sentPost = await _telegramBotClient.SendPhotoAsync(
+            actress.ChatId,
+            new InputOnlineFile(file),
+            caption,
+            ParseMode.Html,
+            replyMarkup: Keyboards.WithLikes(0));
 
-        private string EnrichCaption(string caption)
-            => $"{caption} | <a href=\"{_channelLink}\">join</a> | <a href=\"{_accessLink}\">access</a>";
+        var fileId = sentPost.Photo!
+            .OrderByDescending(x => x.Height)
+            .ThenByDescending(x => x.Width)
+            .Select(x => x.FileId)
+            .First();
 
-        private static int GetScenePostNumber(long sceneId)
-        {
-            ScenePostNumbers.AddOrUpdate(sceneId, 0, (_, old) => old + 1);
-            return ScenePostNumbers[sceneId];
-        }
+        await _postedMediaRepository.Add(
+            actress.ChatId,
+            sentPost.MessageId,
+            fileId,
+            actress.ImageSource,
+            post.PostHeader.Id,
+            hash);
+
+        await post.File.DisposeAsync();
+        await file.DisposeAsync();
+    }
+
+    private static string GetHash(Stream file)
+    {
+        file.Seek(0, SeekOrigin.Begin);
+
+        using var md5 = MD5.Create();
+        var result = string.Join("", md5.ComputeHash(file).Select(x => x.ToString("X2"))).ToLowerInvariant();
+        file.Seek(0, SeekOrigin.Begin);
+
+        return result;
+    }
+
+    private string EnrichCaption(string caption)
+        => $"{caption} | <a href=\"{_channelLink}\">join</a> | <a href=\"{_accessLink}\">access</a>";
+
+    private static int GetScenePostNumber(long sceneId)
+    {
+        ScenePostNumbers.AddOrUpdate(sceneId, 0, (_, old) => old + 1);
+        return ScenePostNumbers[sceneId];
     }
 }

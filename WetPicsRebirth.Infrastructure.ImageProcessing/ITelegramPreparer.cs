@@ -1,9 +1,8 @@
 ﻿using System.IO;
 
-namespace WetPicsRebirth.Infrastructure.ImageProcessing
+namespace WetPicsRebirth.Infrastructure.ImageProcessing;
+
+public interface ITelegramPreparer
 {
-    public interface ITelegramPreparer
-    {
-        Stream Prepare(Stream input, long inputByteLength);
-    }
+    Stream Prepare(Stream input, long inputByteLength);
 }

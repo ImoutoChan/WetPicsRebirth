@@ -3,32 +3,31 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
-namespace WetPicsRebirth.Extensions
+namespace WetPicsRebirth.Extensions;
+
+public static class EnumExtensions
 {
-    public static class EnumExtensions
+    public static bool IsDefined<T>(this T value) where T : struct, IConvertible
     {
-        public static bool IsDefined<T>(this T value) where T : struct, IConvertible
+        if (!typeof(T).GetTypeInfo().IsEnum)
         {
-            if (!typeof(T).GetTypeInfo().IsEnum)
-            {
-                throw new NotSupportedException("T must be an enumerated type");
-            }
-
-            return Enum.IsDefined(typeof(T), value);
+            throw new NotSupportedException("T must be an enumerated type");
         }
 
-        public static string GetEnumDescription(this Enum value)
-        {
-            var attributes = value
-                .GetType()
-                .GetField(value.ToString())!
-                .GetCustomAttributes(typeof(DescriptionAttribute), false)
-                .OfType<DescriptionAttribute>()
-                .ToArray();
+        return Enum.IsDefined(typeof(T), value);
+    }
 
-            return attributes.Any()
-                ? attributes.First().Description
-                : value.ToString();
-        }
+    public static string GetEnumDescription(this Enum value)
+    {
+        var attributes = value
+            .GetType()
+            .GetField(value.ToString())!
+            .GetCustomAttributes(typeof(DescriptionAttribute), false)
+            .OfType<DescriptionAttribute>()
+            .ToArray();
+
+        return attributes.Any()
+            ? attributes.First().Description
+            : value.ToString();
     }
 }

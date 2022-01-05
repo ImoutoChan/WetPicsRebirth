@@ -1,9 +1,8 @@
-﻿namespace WetPicsRebirth.Data.Entities
+﻿namespace WetPicsRebirth.Data.Entities;
+
+public enum ImageSource
 {
-    public enum ImageSource
-    {
-        Pixiv,
-        Danbooru,
-        Yandere
-    }
+    Pixiv,
+    Danbooru,
+    Yandere
 }

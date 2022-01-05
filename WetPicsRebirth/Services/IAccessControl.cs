@@ -1,10 +1,9 @@
 using System.Threading.Tasks;
 using MediatR;
 
-namespace WetPicsRebirth.Services
+namespace WetPicsRebirth.Services;
+
+public interface IAccessControl
 {
-    public interface IAccessControl
-    {
-        Task<bool> CheckAccess(INotification notification);
-    }
+    Task<bool> CheckAccess(INotification notification);
 }

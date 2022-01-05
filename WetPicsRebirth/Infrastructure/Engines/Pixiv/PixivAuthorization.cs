@@ -13,183 +13,182 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
 
-namespace WetPicsRebirth.Infrastructure.Engines.Pixiv
+namespace WetPicsRebirth.Infrastructure.Engines.Pixiv;
+
+/// <remarks>
+/// Designed as singleton
+/// </remarks>>
+public class PixivAuthorization : IPixivAuthorization
 {
-    /// <remarks>
-    /// Designed as singleton
-    /// </remarks>>
-    public class PixivAuthorization : IPixivAuthorization
+    private readonly PixivConfiguration _pixivConfiguration;
+    private readonly IMemoryCache _memoryCache;
+
+    public PixivAuthorization(IOptions<PixivConfiguration> pixivConfiguration, IMemoryCache memoryCache)
     {
-        private readonly PixivConfiguration _pixivConfiguration;
-        private readonly IMemoryCache _memoryCache;
+        _memoryCache = memoryCache;
+        _pixivConfiguration = pixivConfiguration.Value;
+    }
 
-        public PixivAuthorization(IOptions<PixivConfiguration> pixivConfiguration, IMemoryCache memoryCache)
+    public async Task<string> GetAccessToken()
+    {
+        var validAccessToken = _memoryCache.Get<string>(PixivApiCredentialsCacheKeys.AccessToken);
+
+        if (validAccessToken != null)
         {
-            _memoryCache = memoryCache;
-            _pixivConfiguration = pixivConfiguration.Value;
+            return validAccessToken;
         }
 
-        public async Task<string> GetAccessToken()
+        var validRefreshToken = _memoryCache.Get<string>(PixivApiCredentialsCacheKeys.RefreshToken);
+
+        validRefreshToken ??= _pixivConfiguration.RefreshToken;
+
+        var when = DateTimeOffset.Now;
+        var (accessToken, refreshToken, expiresIn) = await RefreshTokenAsync(
+            validRefreshToken,
+            _pixivConfiguration.ClientId,
+            _pixivConfiguration.ClientSecret);
+
+        await SaveTokens(accessToken, when, expiresIn, refreshToken);
+
+        return accessToken;
+    }
+
+    public void ResetAccessToken() => _memoryCache.Remove(PixivApiCredentialsCacheKeys.AccessToken);
+
+    private async Task SaveTokens(string? accessToken, DateTimeOffset when, int expiresIn, string? refreshToken)
+    {
+        _memoryCache.Set(
+            PixivApiCredentialsCacheKeys.AccessToken,
+            accessToken,
+            when.AddSeconds(expiresIn));
+        _memoryCache.Set(PixivApiCredentialsCacheKeys.RefreshToken, refreshToken);
+
+        var configuration = new
         {
-            var validAccessToken = _memoryCache.Get<string>(PixivApiCredentialsCacheKeys.AccessToken);
-
-            if (validAccessToken != null)
+            PixivConfiguration = new
             {
-                return validAccessToken;
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
             }
+        };
 
-            var validRefreshToken = _memoryCache.Get<string>(PixivApiCredentialsCacheKeys.RefreshToken);
+        const string cacheFileName = "appsettings.Cache.json";
+        const string backupCacheFileName = cacheFileName + ".backup";
 
-            validRefreshToken ??= _pixivConfiguration.RefreshToken;
+        if (File.Exists(backupCacheFileName))
+            File.Delete(backupCacheFileName);
 
-            var when = DateTimeOffset.Now;
-            var (accessToken, refreshToken, expiresIn) = await RefreshTokenAsync(
-                validRefreshToken,
-                _pixivConfiguration.ClientId,
-                _pixivConfiguration.ClientSecret);
+        if (File.Exists(cacheFileName))
+            File.Move(cacheFileName, backupCacheFileName);
 
-            await SaveTokens(accessToken, when, expiresIn, refreshToken);
+        await File.WriteAllTextAsync("appsettings.Cache.json", JsonConvert.SerializeObject(configuration));
 
-            return accessToken;
+        if (File.Exists(backupCacheFileName))
+            File.Delete(backupCacheFileName);
+    }
+
+    private static async Task<PixivApiAuthInfo> RefreshTokenAsync(
+        string refreshToken,
+        string clientId,
+        string clientSecret)
+    {
+        var httpClient = BuildHttpClient();
+
+        var param = new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                {"refresh_token", refreshToken},
+                {"grant_type", "refresh_token"},
+                {"client_id", clientId},
+                {"client_secret", clientSecret},
+                {"device_token", "pixiv"},
+                {"get_secure_url", "true"},
+                {"include_policy", "true"}
+            }!);
+
+        var response = await httpClient.PostAsync("https://oauth.secure.pixiv.net/auth/token", param);
+        await EnsureSuccessStatusCode(response);
+
+        var json = await response.Content.ReadAsStringAsync();
+
+        var responsePart = JToken.Parse(json).SelectToken("response");
+
+        return new PixivApiAuthInfo(
+            responsePart?.SelectToken("access_token")?.Value<string>()
+            ?? throw new Exception("Unable to retrieve access_token from pixiv response"),
+            responsePart?.SelectToken("refresh_token")?.Value<string>()
+            ?? throw new Exception("Unable to retrieve refresh_token from pixiv response"),
+            responsePart?.SelectToken("expires_in")?.Value<int>()
+            ?? throw new Exception("Unable to retrieve expires_in from pixiv response"));
+    }
+
+    private static async Task EnsureSuccessStatusCode(HttpResponseMessage response)
+    {
+        if ((int)response.StatusCode < 300)
+        {
+            return;
         }
 
-        public void ResetAccessToken() => _memoryCache.Remove(PixivApiCredentialsCacheKeys.AccessToken);
-
-        private async Task SaveTokens(string? accessToken, DateTimeOffset when, int expiresIn, string? refreshToken)
+        try
         {
-            _memoryCache.Set(
-                PixivApiCredentialsCacheKeys.AccessToken,
-                accessToken,
-                when.AddSeconds(expiresIn));
-            _memoryCache.Set(PixivApiCredentialsCacheKeys.RefreshToken, refreshToken);
+            var content = await response.Content.ReadAsStringAsync();
 
-            var configuration = new
+            var errorCode = JToken.Parse(content).SelectToken("errors")?.SelectToken("system")?.SelectToken("code")?.Value<int>();
+
+            const int invalidRefreshTokenErrorCode = 1508;
+
+            if (errorCode == invalidRefreshTokenErrorCode)
             {
-                PixivConfiguration = new
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken
-                }
-            };
-
-            const string cacheFileName = "appsettings.Cache.json";
-            const string backupCacheFileName = cacheFileName + ".backup";
-
-            if (File.Exists(backupCacheFileName))
-                File.Delete(backupCacheFileName);
-
-            if (File.Exists(cacheFileName))
-                File.Move(cacheFileName, backupCacheFileName);
-
-            await File.WriteAllTextAsync("appsettings.Cache.json", JsonConvert.SerializeObject(configuration));
-
-            if (File.Exists(backupCacheFileName))
-                File.Delete(backupCacheFileName);
-        }
-
-        private static async Task<PixivApiAuthInfo> RefreshTokenAsync(
-            string refreshToken,
-            string clientId,
-            string clientSecret)
-        {
-            var httpClient = BuildHttpClient();
-
-            var param = new FormUrlEncodedContent(
-                new Dictionary<string, string>
-                {
-                    {"refresh_token", refreshToken},
-                    {"grant_type", "refresh_token"},
-                    {"client_id", clientId},
-                    {"client_secret", clientSecret},
-                    {"device_token", "pixiv"},
-                    {"get_secure_url", "true"},
-                    {"include_policy", "true"}
-                }!);
-
-            var response = await httpClient.PostAsync("https://oauth.secure.pixiv.net/auth/token", param);
-            await EnsureSuccessStatusCode(response);
-
-            var json = await response.Content.ReadAsStringAsync();
-
-            var responsePart = JToken.Parse(json).SelectToken("response");
-
-            return new PixivApiAuthInfo(
-                responsePart?.SelectToken("access_token")?.Value<string>()
-                    ?? throw new Exception("Unable to retrieve access_token from pixiv response"),
-                responsePart?.SelectToken("refresh_token")?.Value<string>()
-                    ?? throw new Exception("Unable to retrieve refresh_token from pixiv response"),
-                responsePart?.SelectToken("expires_in")?.Value<int>()
-                    ?? throw new Exception("Unable to retrieve expires_in from pixiv response"));
-        }
-
-        private static async Task EnsureSuccessStatusCode(HttpResponseMessage response)
-        {
-            if ((int)response.StatusCode < 300)
-            {
-                return;
-            }
-
-            try
-            {
-                var content = await response.Content.ReadAsStringAsync();
-
-                var errorCode = JToken.Parse(content).SelectToken("errors")?.SelectToken("system")?.SelectToken("code")?.Value<int>();
-
-                const int invalidRefreshTokenErrorCode = 1508;
-
-                if (errorCode == invalidRefreshTokenErrorCode)
-                {
-                    throw new InvalidRefreshTokenException();
-                }
-            }
-            catch (InvalidRefreshTokenException)
-            {
-                throw;
-            }
-            catch
-            {
-                response.EnsureSuccessStatusCode();
+                throw new InvalidRefreshTokenException();
             }
         }
-
-        private static HttpClient BuildHttpClient()
+        catch (InvalidRefreshTokenException)
         {
-            var handler = new HttpClientHandler
-            {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            };
-
-            var currentDateTime = DateTimeOffset.Now;
-            var usDateTime = currentDateTime.ToOffset(TimeSpan.FromHours(2));
-            var dateTimeString = usDateTime.ToString("yyyy-MM-ddTHH:mm:sszzz");
-            const string salt = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c";
-
-            var hash = CalculateMd5(dateTimeString + salt);
-
-            var httpClient = new HttpClient(handler);
-            httpClient.DefaultRequestHeaders.Add("Referer", "http://www.pixiv.net/");
-            httpClient.DefaultRequestHeaders.Add("User-Agent", $"PixivAndroidApp/5.0.{115} (Android 6.0; PixivBot)");
-            httpClient.DefaultRequestHeaders.Add("accept-language", "en_US");
-            httpClient.DefaultRequestHeaders.Add("app-os", "android");
-            httpClient.DefaultRequestHeaders.Add("app-os-version", "5.0.156");
-            httpClient.DefaultRequestHeaders.Add("x-client-time", dateTimeString);
-            httpClient.DefaultRequestHeaders.Add("x-client-hash", hash);
-            httpClient.DefaultRequestHeaders.Add("accept-encoding", "gzip");
-            return httpClient;
+            throw;
         }
-
-        private static string CalculateMd5(string input)
+        catch
         {
-            using var md5 = MD5.Create();
-
-            var inputBytes = Encoding.ASCII.GetBytes(input);
-            var hashBytes = md5.ComputeHash(inputBytes);
-
-            return string.Join("", hashBytes.Select(x => x.ToString("X2"))).ToLower();
+            response.EnsureSuccessStatusCode();
         }
     }
 
-    internal class InvalidRefreshTokenException : Exception
+    private static HttpClient BuildHttpClient()
     {
+        var handler = new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+        };
+
+        var currentDateTime = DateTimeOffset.Now;
+        var usDateTime = currentDateTime.ToOffset(TimeSpan.FromHours(2));
+        var dateTimeString = usDateTime.ToString("yyyy-MM-ddTHH:mm:sszzz");
+        const string salt = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c";
+
+        var hash = CalculateMd5(dateTimeString + salt);
+
+        var httpClient = new HttpClient(handler);
+        httpClient.DefaultRequestHeaders.Add("Referer", "http://www.pixiv.net/");
+        httpClient.DefaultRequestHeaders.Add("User-Agent", $"PixivAndroidApp/5.0.{115} (Android 6.0; PixivBot)");
+        httpClient.DefaultRequestHeaders.Add("accept-language", "en_US");
+        httpClient.DefaultRequestHeaders.Add("app-os", "android");
+        httpClient.DefaultRequestHeaders.Add("app-os-version", "5.0.156");
+        httpClient.DefaultRequestHeaders.Add("x-client-time", dateTimeString);
+        httpClient.DefaultRequestHeaders.Add("x-client-hash", hash);
+        httpClient.DefaultRequestHeaders.Add("accept-encoding", "gzip");
+        return httpClient;
     }
+
+    private static string CalculateMd5(string input)
+    {
+        using var md5 = MD5.Create();
+
+        var inputBytes = Encoding.ASCII.GetBytes(input);
+        var hashBytes = md5.ComputeHash(inputBytes);
+
+        return string.Join("", hashBytes.Select(x => x.ToString("X2"))).ToLower();
+    }
+}
+
+internal class InvalidRefreshTokenException : Exception
+{
 }

@@ -5,39 +5,38 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WetPicsRebirth.Data.Entities;
 
-namespace WetPicsRebirth.Data.Repositories
+namespace WetPicsRebirth.Data.Repositories;
+
+internal class ActressesRepository : IActressesRepository
 {
-    internal class ActressesRepository : IActressesRepository
+    private readonly WetPicsRebirthDbContext _context;
+
+    public ActressesRepository(WetPicsRebirthDbContext context)
     {
-        private readonly WetPicsRebirthDbContext _context;
+        _context = context;
+    }
 
-        public ActressesRepository(WetPicsRebirthDbContext context)
+    public async Task<IReadOnlyCollection<Actress>> GetForChat(long targetChatId)
+    {
+        return await _context.Actresses.Where(x => x.ChatId == targetChatId).ToListAsync();
+    }
+
+    public async Task Add(long targetChatId, ImageSource source, string options)
+    {
+        var newActress = new Actress(targetChatId, source, options);
+
+        _context.Actresses.Add(newActress);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task Remove(Guid id)
+    {
+        var actress = await _context.Actresses.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (actress != null)
         {
-            _context = context;
-        }
-
-        public async Task<IReadOnlyCollection<Actress>> GetForChat(long targetChatId)
-        {
-            return await _context.Actresses.Where(x => x.ChatId == targetChatId).ToListAsync();
-        }
-
-        public async Task Add(long targetChatId, ImageSource source, string options)
-        {
-            var newActress = new Actress(targetChatId, source, options);
-
-            _context.Actresses.Add(newActress);
+            _context.Actresses.Remove(actress);
             await _context.SaveChangesAsync();
-        }
-
-        public async Task Remove(Guid id)
-        {
-            var actress = await _context.Actresses.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (actress != null)
-            {
-                _context.Actresses.Remove(actress);
-                await _context.SaveChangesAsync();
-            }
         }
     }
 }

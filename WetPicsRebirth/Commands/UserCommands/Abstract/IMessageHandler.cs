@@ -1,9 +1,8 @@
 ﻿using MediatR;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
 
-namespace WetPicsRebirth.Commands.UserCommands.Abstract
+namespace WetPicsRebirth.Commands.UserCommands.Abstract;
+
+public interface IMessageHandler : INotificationHandler<MessageNotification>
 {
-    public interface IMessageHandler : INotificationHandler<MessageNotification>
-    {
-    }
 }

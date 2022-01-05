@@ -1,15 +1,14 @@
 ﻿using MediatR;
 using Telegram.Bot.Types;
 
-namespace WetPicsRebirth.EntryPoint.Service.Notifications
-{
-    public class MessageNotification : INotification
-    {
-        public MessageNotification(Message message)
-        {
-            Message = message;
-        }
+namespace WetPicsRebirth.EntryPoint.Service.Notifications;
 
-        public Message Message { get; }
+public class MessageNotification : INotification
+{
+    public MessageNotification(Message message)
+    {
+        Message = message;
     }
+
+    public Message Message { get; }
 }

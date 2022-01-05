@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using WetPicsRebirth.Data.Entities;
 
-namespace WetPicsRebirth.Data.Repositories
+namespace WetPicsRebirth.Data.Repositories;
+
+public interface IUsersRepository
 {
-    public interface IUsersRepository
-    {
-        Task AddOrUpdate(User user);
-    }
+    Task AddOrUpdate(User user);
 }

@@ -3,14 +3,13 @@ using System.Threading.Tasks;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Infrastructure.Models;
 
-namespace WetPicsRebirth.Infrastructure
+namespace WetPicsRebirth.Infrastructure;
+
+public interface IPopularListLoaderEngine
 {
-    public interface IPopularListLoaderEngine
-    {
-        public Task<IReadOnlyCollection<PostHeader>> LoadPopularList(string options);
+    public Task<IReadOnlyCollection<PostHeader>> LoadPopularList(string options);
 
-        public Task<Post> LoadPost(PostHeader postHeader);
+    public Task<Post> LoadPost(PostHeader postHeader);
 
-        string CreateCaption(ImageSource source, string options, Post post);
-    }
+    string CreateCaption(ImageSource source, string options, Post post);
 }
