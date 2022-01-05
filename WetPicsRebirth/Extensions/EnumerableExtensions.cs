@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace WetPicsRebirth.Extensions;
+﻿namespace WetPicsRebirth.Extensions;
 
 public static class EnumerableExtensions
 {

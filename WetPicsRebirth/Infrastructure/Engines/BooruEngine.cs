@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Imouto.BooruParser.Loaders;
+﻿using Imouto.BooruParser.Loaders;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Infrastructure.Models;

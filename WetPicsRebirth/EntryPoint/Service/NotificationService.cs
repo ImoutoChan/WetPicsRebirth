@@ -1,9 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
+﻿using Telegram.Bot.Types;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
 using WetPicsRebirth.Services;
 

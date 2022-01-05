@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using WetPicsRebirth.Data.Entities;
+﻿using WetPicsRebirth.Data.Entities;
 
 namespace WetPicsRebirth.Data.Repositories;
 

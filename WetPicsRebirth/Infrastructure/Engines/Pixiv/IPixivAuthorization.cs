@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace WetPicsRebirth.Infrastructure.Engines.Pixiv;
+﻿namespace WetPicsRebirth.Infrastructure.Engines.Pixiv;
 
 public interface IPixivAuthorization
 {

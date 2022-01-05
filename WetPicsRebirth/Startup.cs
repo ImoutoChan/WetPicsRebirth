@@ -1,15 +1,11 @@
-using System.Linq;
-using System.Net.Http;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+global using MediatR;
+global using NodaTime;
+global using Telegram.Bot;
+global using Telegram.Bot.Types.Enums;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Quartz;
-using Telegram.Bot;
 using WetPicsRebirth.Commands.UserCommands.Abstract;
 using WetPicsRebirth.Data;
 using WetPicsRebirth.Data.Repositories;

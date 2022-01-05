@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Telegram.Bot;
-using WetPicsRebirth.Commands.UserCommands.Abstract;
+﻿using WetPicsRebirth.Commands.UserCommands.Abstract;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories;
 using WetPicsRebirth.EntryPoint.Service.Notifications;

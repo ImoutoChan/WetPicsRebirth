@@ -1,7 +1,4 @@
-﻿using System;
-using NodaTime;
-
-namespace WetPicsRebirth.Data;
+﻿namespace WetPicsRebirth.Data;
 
 public interface IEntityBase
 {

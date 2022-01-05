@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
+﻿using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
 
 namespace WetPicsRebirth.Infrastructure.Engines.Pixiv;
 

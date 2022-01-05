@@ -1,5 +1,4 @@
-﻿using MediatR;
-using WetPicsRebirth.EntryPoint.Service.Notifications;
+﻿using WetPicsRebirth.EntryPoint.Service.Notifications;
 
 namespace WetPicsRebirth.Commands.UserCommands.Abstract;
 

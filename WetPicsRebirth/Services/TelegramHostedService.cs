@@ -1,10 +1,4 @@
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Telegram.Bot;
 
 namespace WetPicsRebirth.Services;
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NodaTime;
-
-namespace WetPicsRebirth.Data.Entities;
+﻿namespace WetPicsRebirth.Data.Entities;
 
 public class PostedMedia : IEntityBase
 {

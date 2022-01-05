@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Telegram.Bot;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Telegram.Bot.Types;
 using WetPicsRebirth.Commands.UserCommands.Abstract;
 

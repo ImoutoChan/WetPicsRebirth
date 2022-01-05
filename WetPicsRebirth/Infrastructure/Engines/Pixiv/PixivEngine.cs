@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
 using WetPicsRebirth.Infrastructure.Models;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using Imouto.BooruParser.Loaders;
+﻿using Imouto.BooruParser.Loaders;
 using Microsoft.Extensions.Options;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Infrastructure.Engines;

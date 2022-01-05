@@ -1,7 +1,4 @@
-﻿using System;
-using NodaTime;
-
-namespace WetPicsRebirth.Data.Entities;
+﻿namespace WetPicsRebirth.Data.Entities;
 
 public class Vote : IEntityBase
 {

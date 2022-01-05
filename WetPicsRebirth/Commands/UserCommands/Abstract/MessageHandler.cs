@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Telegram.Bot;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
 
 namespace WetPicsRebirth.Commands.UserCommands.Abstract;

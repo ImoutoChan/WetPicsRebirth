@@ -1,5 +1,4 @@
-﻿using System.IO;
-using WetPicsRebirth.Infrastructure.Models;
+﻿using WetPicsRebirth.Infrastructure.Models;
 
 namespace WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
 
