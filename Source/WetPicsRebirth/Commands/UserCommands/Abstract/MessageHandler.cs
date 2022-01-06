@@ -95,7 +95,7 @@ public abstract class MessageHandler : IMessageHandler
             {
                 Status: ChatMemberStatus.Administrator,
                 CanPostMessages: true
-            };
+            } or ChatMemberOwner;
         }
         catch (ApiRequestException ex)
             when (ex.Message == "Bad Request: there is no administrators in the private chat")

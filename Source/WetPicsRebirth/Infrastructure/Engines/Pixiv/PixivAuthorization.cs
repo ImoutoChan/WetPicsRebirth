@@ -59,7 +59,7 @@ public class PixivAuthorization : IPixivAuthorization
 
         var configuration = new
         {
-            PixivConfiguration = new
+            Pixiv = new
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken

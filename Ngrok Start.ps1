@@ -1,2 +1,2 @@
 net stop winnat
-.\ngrok.exe http 4430
+.\Tools\ngrok.exe http 4430

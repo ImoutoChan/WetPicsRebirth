@@ -24,7 +24,7 @@ public static class Program
                 {
                     builder.AddAzureAppConfiguration(x => x
                         .Connect(azureAppConfiguration)
-                        .Select("*", context.HostingEnvironment.EnvironmentName));
+                        .Select("*", Environments.Production));
                 }
 
                 builder
