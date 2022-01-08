@@ -6,13 +6,13 @@ namespace WetPicsRebirth.Infrastructure.ImageProcessing;
 
 internal class TelegramPreparer : ITelegramPreparer
 {
-    private static readonly int _photoSizeLimit = 1024 * 1024 * 5;
-    private static readonly int _photoHeightLimit = 2560;
-    private static readonly int _photoWidthLimit = 2560;
+    private const int PhotoSizeLimit = 1024 * 1024 * 5;
+    private const int PhotoHeightLimit = 2560;
+    private const int PhotoWidthLimit = 2560;
 
     public Stream Prepare(Stream input, long inputByteLength)
     {
-        var saveAnyway = inputByteLength >= _photoSizeLimit;
+        var saveAnyway = inputByteLength >= PhotoSizeLimit;
 
         using var image = Image.NewFromStream(input);
         var scale = CalculateScaleFactor(image);
@@ -37,10 +37,12 @@ internal class TelegramPreparer : ITelegramPreparer
     {
         double minRatio = 1;
 
-        if (image.Height - _photoHeightLimit >= 0 || image.Width - _photoWidthLimit >= 0)
+        var imageTooBig = image.Height - PhotoHeightLimit >= 0 || image.Width - PhotoWidthLimit >= 0;
+
+        if (imageTooBig)
         {
-            double ratioH = _photoHeightLimit / (double)image.Height;
-            double ratioW = _photoWidthLimit / (double)image.Width;
+            double ratioH = PhotoHeightLimit / (double)image.Height;
+            double ratioW = PhotoWidthLimit / (double)image.Width;
 
             ratioH = Math.Min(1, ratioH);
             ratioW = Math.Min(1, ratioW);

@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+  postgresserver:
+    image: postgres:14.1
+    environment:
+      - POSTGRES_PASSWORD=pass
+    networks:
+      - customnetwork
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      
+  wetpicsrebirth:
+    image: imoutochan/wetpicsrebirth:latest
+    depends_on: 
+      - postgresserver
+    links:
+      - postgresserver
+    networks:
+      - customnetwork
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__WetPicsRebirthOnPostgres=Server=postgresserver;Port=5432;Database=WetPicsRebirth;User Id=postgres;Password=pass
+    ports:
+      - "4430:80"
+      
+
+networks:
+  customnetwork:
+     driver: bridge
+
+volumes:
+   pgdata:

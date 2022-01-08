@@ -13,3 +13,4 @@
 /Source/WetPicsRebirth.Infrastructure.ImageProcessing/obj/*
 /Source/WetPicsRebirth/WetPicsRebirth/obj/*
 /Source/WetPicsRebirth/WetPicsRebirth/bin/*
+/Deploy/docker-compose.production.yml
