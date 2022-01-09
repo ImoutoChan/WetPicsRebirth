@@ -23,6 +23,8 @@ public class WetPicsRebirthDbContext : DbContext
 
     public DbSet<Vote> Votes { get; private set; } = default!;
 
+    public DbSet<ModeratedMedia> ModeratedMedia { get; private set; } = default!;
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder
@@ -54,6 +56,10 @@ public class WetPicsRebirthDbContext : DbContext
         builder
             .Entity<PostedMedia>().HasIndex(x => new { x.ChatId, x.ImageSource, x.PostId });
 
+        builder.Entity<ModeratedMedia>().HasKey(x => x.Id);
+        builder.Entity<ModeratedMedia>().HasIndex(x => new { x.PostId, x.Hash });
+        builder.Entity<ModeratedMedia>().HasIndex(x => x.MessageId);
+
         builder
             .Entity<User>()
             .HasKey(x => x.Id);
@@ -73,7 +79,7 @@ public class WetPicsRebirthDbContext : DbContext
 
     public override Task<int> SaveChangesAsync(
         bool acceptAllChangesOnSuccess,
-        CancellationToken cancellationToken = new CancellationToken())
+        CancellationToken cancellationToken = new())
     {
         var now = SystemClock.Instance.GetCurrentInstant();
 

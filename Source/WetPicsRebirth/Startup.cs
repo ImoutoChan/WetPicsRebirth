@@ -54,12 +54,14 @@ public class Startup
 
         // services
         services.AddTransient<INotificationService, NotificationService>();
+        services.AddTransient<IModerationService, ModerationService>();
         services.AddTransient<IAccessControl, AccessControl>();
         services.AddTransient<IScenesRepository, ScenesRepository>();
         services.AddTransient<IActressesRepository, ActressesRepository>();
         services.AddTransient<IPostedMediaRepository, PostedMediaRepository>();
         services.AddTransient<IVotesRepository, VotesRepository>();
         services.AddTransient<IUsersRepository, UsersRepository>();
+        services.AddTransient<IModeratedPostsRepository, ModeratedPostsRepository>();
 
         services.AddTransient<IPopularListLoader, PopularListLoader>();
         services.AddHttpClient<IEngineFactory, EngineFactory>();

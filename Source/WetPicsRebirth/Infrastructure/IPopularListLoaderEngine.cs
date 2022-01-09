@@ -7,7 +7,7 @@ public interface IPopularListLoaderEngine
 {
     public Task<IReadOnlyCollection<PostHeader>> LoadPopularList(string options);
 
-    public Task<Post> LoadPost(PostHeader postHeader);
+    public Task<LoadedPost> LoadPost(PostHeader postHeader);
 
     string CreateCaption(ImageSource source, string options, Post post);
 }

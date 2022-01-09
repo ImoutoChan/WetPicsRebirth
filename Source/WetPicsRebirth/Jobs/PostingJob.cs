@@ -6,7 +6,7 @@ namespace WetPicsRebirth.Jobs;
 internal sealed class PostingJob : IJob
 {
     private readonly IMediator _mediator;
-    private static readonly SemaphoreSlim Locker = new SemaphoreSlim(1);
+    private static readonly SemaphoreSlim Locker = new(1);
 
     public PostingJob(IMediator mediator)
     {

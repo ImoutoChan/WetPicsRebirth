@@ -24,7 +24,7 @@ public class PopularListLoader : IPopularListLoader
         });
     }
 
-    public Task<Post> LoadPost(ImageSource source, PostHeader header)
+    public Task<LoadedPost> LoadPost(ImageSource source, PostHeader header)
     {
         return _engineFactory.Get(source).LoadPost(header);
     }

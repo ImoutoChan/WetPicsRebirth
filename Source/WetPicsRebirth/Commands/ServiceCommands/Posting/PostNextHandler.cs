@@ -20,6 +20,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
     private readonly ITelegramBotClient _telegramBotClient;
     private readonly IPostedMediaRepository _postedMediaRepository;
     private readonly ITelegramPreparer _telegramPreparer;
+    private readonly IModerationService _moderationService;
 
     private readonly string _channelLink;
     private readonly string _accessLink;
@@ -32,7 +33,8 @@ public class PostNextHandler : IRequestHandler<PostNext>
         ITelegramBotClient telegramBotClient,
         IPostedMediaRepository postedMediaRepository,
         IConfiguration configuration,
-        ITelegramPreparer telegramPreparer)
+        ITelegramPreparer telegramPreparer,
+        IModerationService moderationService)
     {
         _scenesRepository = scenesRepository;
         _actressesRepository = actressesRepository;
@@ -41,6 +43,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
         _telegramBotClient = telegramBotClient;
         _postedMediaRepository = postedMediaRepository;
         _telegramPreparer = telegramPreparer;
+        _moderationService = moderationService;
         _channelLink = configuration.GetValue<string>("ChannelInviteLink");
         _accessLink = configuration.GetValue<string>("AccessLink");
     }
@@ -88,19 +91,32 @@ public class PostNextHandler : IRequestHandler<PostNext>
         }
     }
 
-    private async Task PostNextForActress(Actress actress)
+    private async Task PostNextForActress(Actress actress, params int[] skipIds)
     {
         var list = await _popularListLoader.Load(actress.ImageSource, actress.Options);
-        var postIds = list.Select(x => (x.Id, x.Md5Hash)).ToList();
+        var postIds = list.Where(x => !skipIds.Contains(x.Id)).Select(x => (x.Id, x.Md5Hash)).ToList();
 
         var newId = await _postedMediaRepository.GetFirstNew(actress.ChatId, actress.ImageSource, postIds);
 
         if (newId == null)
         {
-            throw new Exception("No new images in actress");
+            throw new("No new images in actress");
         }
 
-        var post = await _popularListLoader.LoadPost(actress.ImageSource, list.First(x => x.Id == newId.Value));
+        var loadedPost = await _popularListLoader.LoadPost(actress.ImageSource, list.First(x => x.Id == newId.Value));
+
+        if (loadedPost.RequireModeration)
+        {
+            var approved = await _moderationService.CheckPost(loadedPost.Post);
+            if (!approved)
+            {
+                var newSkipIds = skipIds.Append(loadedPost.Post.PostHeader.Id).ToArray();
+                await PostNextForActress(actress, newSkipIds);
+                return;
+            }
+        }
+
+        var post = loadedPost.Post;
         var caption = _popularListLoader.CreateCaption(actress.ImageSource, actress.Options, post);
         caption = EnrichCaption(caption);
 
@@ -109,7 +125,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
 
         var sentPost = await _telegramBotClient.SendPhotoAsync(
             actress.ChatId,
-            new InputOnlineFile(file),
+            new(file),
             caption,
             ParseMode.Html,
             replyMarkup: Keyboards.WithLikes(0));

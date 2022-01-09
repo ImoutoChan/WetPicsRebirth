@@ -6,12 +6,10 @@ namespace WetPicsRebirth.Infrastructure.Engines.Pixiv;
 
 public class PixivEngine : IPopularListLoaderEngine
 {
-    private readonly HttpClient _httpClient;
     private readonly IPixivApiClient _pixivApiClient;
 
-    public PixivEngine(HttpClient httpClient, IPixivApiClient pixivApiClient)
+    public PixivEngine(IPixivApiClient pixivApiClient)
     {
-        _httpClient = httpClient;
         _pixivApiClient = pixivApiClient;
     }
 
@@ -23,14 +21,17 @@ public class PixivEngine : IPopularListLoaderEngine
         return await _pixivApiClient.LoadTop(pixivTopType);
     }
 
-    public async Task<Post> LoadPost(PostHeader postHeader)
+    public async Task<LoadedPost> LoadPost(PostHeader postHeader)
     {
         if (postHeader is not PixivPostHeader pixivPostHeader)
-            throw new Exception("Wrong post header type");
+            throw new("Wrong post header type");
 
-        var file = await _pixivApiClient.DownloadImage(pixivPostHeader.ImageUrl);
+        var (stream, length) = await _pixivApiClient.DownloadImage(pixivPostHeader.ImageUrl);
 
-        return new PixivPost(pixivPostHeader, file.Stream, file.Length);
+        var resultPost = new PixivPost(pixivPostHeader, stream, length);
+        var requireModeration = CheckForModeration(pixivPostHeader);
+
+        return new(resultPost, requireModeration);
     }
 
     public string CreateCaption(ImageSource source, string options, Post post)
@@ -46,4 +47,7 @@ public class PixivEngine : IPopularListLoaderEngine
             .Replace("<", "&lt;")
             .Replace(">", "&gt;")
             .Replace("&", "&amp;");
+
+    private static bool CheckForModeration(PixivPostHeader header) =>
+        header.Tags.Any(x => x.Contains("loli") || x.Contains("shota"));
 }

@@ -34,7 +34,7 @@ public class EngineFactory : IEngineFactory
                     _danbooruConfiguration.Delay,
                     _httpClient),
                 _httpClient),
-            ImageSource.Pixiv => new PixivEngine(_httpClient, _pixivApiClient),
+            ImageSource.Pixiv => new PixivEngine(_pixivApiClient),
             _ => throw new ArgumentOutOfRangeException(nameof(imageSource), imageSource, null)
         };
     }

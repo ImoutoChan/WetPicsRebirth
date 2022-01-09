@@ -1,5 +1,3 @@
 ﻿namespace WetPicsRebirth.Commands.ServiceCommands.Posting;
 
-public class PostNext : IRequest
-{
-}
+public record PostNext : IRequest;

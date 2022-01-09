@@ -1,5 +1,5 @@
+using System;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -11,7 +11,6 @@ using WetPicsRebirth.Infrastructure;
 using WetPicsRebirth.Infrastructure.Engines;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
-using WetPicsRebirth.Infrastructure.Models;
 using Xunit;
 
 namespace WetPicsRebirth.Tests;
@@ -27,12 +26,12 @@ public class PopularListLoaderTests
         var pixivOptions = Options.Create(config.GetSection("Pixiv").Get<PixivConfiguration>());
         var danbooruOptions = Options.Create(config.GetSection("Danbooru").Get<DanbooruConfiguration>());
 
-        _loader = new PopularListLoader(
+        _loader = new(
             new EngineFactory(
-                new HttpClient(),
+                new(),
                 danbooruOptions,
                 new PixivApiClient(
-                    new HttpClient(),
+                    new(),
                     pixivOptions,
                     new PixivAuthorization(pixivOptions,
                         new MemoryCache(Options.Create(new MemoryCacheOptions()))))),
@@ -82,10 +81,10 @@ public class PopularListLoaderTests
     [Fact]
     public async Task YandereLoaderShouldLoadPost()
     {
-        var post = await _loader.LoadPost(ImageSource.Yandere, new PostHeader(666626, null));
+        var post = await _loader.LoadPost(ImageSource.Yandere, new(666626, null));
 
         using MD5 md5 = MD5.Create();
-        var hash = string.Join("", md5.ComputeHash(post.File).Select(x => x.ToString("X2")));
+        var hash = string.Join("", md5.ComputeHash(post.Post.File).Select(x => x.ToString("X2")));
 
         hash.ToUpperInvariant().Should().Be("4cedfc7918c5bf7b82ae7af1402ce9b7".ToUpperInvariant());
     }
@@ -93,10 +92,10 @@ public class PopularListLoaderTests
     [Fact]
     public async Task DanbooruLoaderShouldLoadPost()
     {
-        var post = await _loader.LoadPost(ImageSource.Danbooru, new PostHeader(4695839, null));
+        var post = await _loader.LoadPost(ImageSource.Danbooru, new(4695839, null));
 
         using MD5 md5 = MD5.Create();
-        var hash = string.Join("", md5.ComputeHash(post.File).Select(x => x.ToString("X2")));
+        var hash = string.Join("", md5.ComputeHash(post.Post.File).Select(x => x.ToString("X2")));
 
         hash.ToUpperInvariant().Should().Be("44727b73a7995a630194cecf7d20e73a".ToUpperInvariant());
     }
@@ -110,11 +109,44 @@ public class PopularListLoaderTests
                 92561568,
                 "https://i.pximg.net/img-original/img/2021/09/06/22/46/24/92561568_p0.jpg",
                 "ミソラ　逆レ",
-                "腿之助兵衛"));
+                "腿之助兵衛",
+                Array.Empty<string>()));
 
         using MD5 md5 = MD5.Create();
-        var hash = string.Join("", md5.ComputeHash(post.File).Select(x => x.ToString("X2")));
+        var hash = string.Join("", md5.ComputeHash(post.Post.File).Select(x => x.ToString("X2")));
 
         hash.ToUpperInvariant().Should().Be("09109EE12C056E7457080B11067088D8".ToUpperInvariant());
+    }
+
+    [Fact]
+    public async Task PostWithoutLoliShouldNotRequestModeration()
+    {
+        var post = await _loader.LoadPost(
+            ImageSource.Pixiv,
+            new PixivPostHeader(
+                92561568,
+                "https://i.pximg.net/img-original/img/2021/09/06/22/46/24/92561568_p0.jpg",
+                "ミソラ　逆レ",
+                "腿之助兵衛",
+                Array.Empty<string>()));
+
+        post.RequireModeration.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("loli")]
+    [InlineData("mini loli with breasts")]
+    public async Task PostWithLoliShouldRequestModeration(string tag)
+    {
+        var post = await _loader.LoadPost(
+            ImageSource.Pixiv,
+            new PixivPostHeader(
+                92561568,
+                "https://i.pximg.net/img-original/img/2021/09/06/22/46/24/92561568_p0.jpg",
+                "ミソラ　逆レ",
+                "腿之助兵衛",
+                new []{ tag }));
+
+        post.RequireModeration.Should().BeTrue();
     }
 }

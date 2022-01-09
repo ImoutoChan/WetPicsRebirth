@@ -40,10 +40,18 @@ public class PixivApiClient : IPixivApiClient
             ?.ToObject<IReadOnlyCollection<Illustration>>();
 
         if (illustrations == null)
-            throw new Exception($"Unexpected pixiv response: {responseContent}");
+            throw new($"Unexpected pixiv response: {responseContent}");
 
         return illustrations
-            .Select(x => new PixivPostHeader((int)x.Id, x.ImageUrls!.Large!, x.Title!, x.User!.Name!))
+            .Select(x => new PixivPostHeader(
+                (int)x.Id,
+                x.ImageUrls!.Large!,
+                x.Title!,
+                x.User!.Name!,
+                x.Tags
+                    ?.Where(y => y.TranslatedName != null)
+                    .Select(y => y.TranslatedName!)
+                    .ToArray() ?? Array.Empty<string>()))
             .ToList();
     }
 
@@ -62,6 +70,7 @@ public class PixivApiClient : IPixivApiClient
         request.Headers.TryAddWithoutValidation("app-os", "ios");
         request.Headers.TryAddWithoutValidation("app-os-version", "14.6");
         request.Headers.TryAddWithoutValidation("User-Agent", "PixivIOSApp/7.13.3 (iOS 14.6; iPhone13,2)");
+        request.Headers.TryAddWithoutValidation("Accept-Language", "English");
 
         request.Headers.Authorization = AuthenticationHeaderValue.Parse("Bearer " + token);
 
@@ -95,7 +104,7 @@ public class PixivApiClient : IPixivApiClient
         var length = response.Content.Headers.ContentLength;
         if (!length.HasValue)
         {
-            throw new Exception("Unexpected length");
+            throw new("Unexpected length");
         }
 
         return new (await response.Content.ReadAsStreamAsync(), length.Value);

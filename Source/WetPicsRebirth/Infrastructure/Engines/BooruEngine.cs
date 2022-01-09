@@ -1,7 +1,9 @@
 ﻿using Imouto.BooruParser.Loaders;
+using Imouto.BooruParser.Model.Base;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Infrastructure.Models;
+using Post = WetPicsRebirth.Infrastructure.Models.Post;
 
 namespace WetPicsRebirth.Infrastructure.Engines;
 
@@ -25,7 +27,7 @@ public class BooruEngine : IPopularListLoaderEngine
         return popular.Results.Select(x => new PostHeader(x.Id, x.Md5)).ToList();
     }
 
-    public async Task<Post> LoadPost(PostHeader postHeader)
+    public async Task<LoadedPost> LoadPost(PostHeader postHeader)
     {
         var post = await _loader.LoadPostAsync(postHeader.Id);
         var response = await _httpClient.GetAsync(post.OriginalUrl);
@@ -35,10 +37,13 @@ public class BooruEngine : IPopularListLoaderEngine
 
         if (!length.HasValue)
         {
-            throw new Exception("Unexpected length");
+            throw new("Unexpected length");
         }
 
-        return new Post(postHeader, post.OriginalUrl, stream, length.Value);
+        var resultPost = new Post(postHeader, post.OriginalUrl, stream, length.Value);
+        var requireModeration = CheckForModeration(post);
+
+        return new(resultPost, requireModeration);
     }
 
     public string CreateCaption(ImageSource source, string options, Post post)
@@ -64,4 +69,7 @@ public class BooruEngine : IPopularListLoaderEngine
         };
         return popularType;
     }
+
+    private static bool CheckForModeration(Imouto.BooruParser.Model.Base.Post post)
+        => post.ImageRating == Rating.Explicit && post.Tags.Any(x => x.Name is "loli" or "shota");
 }
