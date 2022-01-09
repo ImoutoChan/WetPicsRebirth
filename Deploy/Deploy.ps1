@@ -1,4 +1,4 @@
-$root = ".\Source"
+$root = "..\Source"
 
 Remove-Item -Path $root\WetPicsRebirth\bin -Recurse
 Remove-Item -Path $root\WetPicsRebirth\obj -Recurse
