@@ -19,4 +19,6 @@ public class User : IEntityBase
 
 
     public IReadOnlyCollection<Vote>? Votes { get; set; }
+
+    public IReadOnlyCollection<UserAccount>? UserAccounts { get; set; }
 }

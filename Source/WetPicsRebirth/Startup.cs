@@ -62,6 +62,8 @@ public class Startup
         services.AddTransient<IVotesRepository, VotesRepository>();
         services.AddTransient<IUsersRepository, UsersRepository>();
         services.AddTransient<IModeratedPostsRepository, ModeratedPostsRepository>();
+        services.AddTransient<IUserAccountsRepository, CachedUserAccountsRepository>();
+        services.AddTransient<UserAccountsRepository, UserAccountsRepository>();
 
         services.AddTransient<IPopularListLoader, PopularListLoader>();
         services.AddHttpClient<IEngineFactory, EngineFactory>();

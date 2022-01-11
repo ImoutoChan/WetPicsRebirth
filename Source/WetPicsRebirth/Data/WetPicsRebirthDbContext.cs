@@ -25,6 +25,8 @@ public class WetPicsRebirthDbContext : DbContext
 
     public DbSet<ModeratedMedia> ModeratedMedia { get; private set; } = default!;
 
+    public DbSet<UserAccount> UserAccounts { get; private set; } = default!;
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder
@@ -73,6 +75,13 @@ public class WetPicsRebirthDbContext : DbContext
         builder
             .Entity<Vote>()
             .HasKey(x => new { x.ChatId, x.MessageId, x.UserId });
+
+        builder
+            .Entity<UserAccount>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.UserAccounts)
+            .HasForeignKey(x => x.UserId)
+            .HasPrincipalKey(x => x.Id);
 
         base.OnModelCreating(builder);
     }
