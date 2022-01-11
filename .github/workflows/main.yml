@@ -11,16 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
       - name: Install GitVersion
         uses: GitTools/actions/gitversion/setup@v0.9.11
         with:
           versionSpec: '5.5.0'
-
+          
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Run GitVersion
         id:   gitversion
@@ -31,6 +30,7 @@ jobs:
         
       - name: Build
         run: |
+          ls
           cd ../Source
           docker build --tag=imoutochan/wetpicsrebirth:${{ steps.gitversion.outputs.majorMinorPatch }} -t imoutochan/wetpicsrebirth . -f WetPicsRebirth/Dockerfile
           docker push imoutochan/wetpicsrebirth:${{ steps.gitversion.outputs.majorMinorPatch }}
