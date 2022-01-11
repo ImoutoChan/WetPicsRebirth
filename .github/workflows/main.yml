@@ -38,7 +38,7 @@ jobs:
       - name: Echo version 
         run: echo ${{ steps.gitversion.outputs.majorMinorPatch }}
 
-      - name: Build and push
+      - name: Build image and push
         uses: docker/build-push-action@v2
         with:
           context: ./Source
@@ -50,3 +50,11 @@ jobs:
             ${{ secrets.DOCKER_HUB_USERNAME }}/wetpicsrebirth:${{ steps.gitversion.outputs.majorMinorPatch }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/wetpicsrebirth:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/wetpicsrebirth:buildcache,mode=max
+          
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: ./update.wetpicsrebirthbot.sh
