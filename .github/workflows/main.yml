@@ -16,7 +16,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Version
+      - name: Install GitVersion
+        uses: GitTools/actions/gitversion/setup@v0.9.11
+        with:
+          versionSpec: '5.5.0'
+
+
+      - name: Run GitVersion
         id:   gitversion
         uses: GitTools/actions/gitversion/execute@v0.9.11
 
