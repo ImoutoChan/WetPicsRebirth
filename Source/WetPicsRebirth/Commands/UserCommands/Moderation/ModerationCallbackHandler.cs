@@ -34,6 +34,12 @@ public class ModerationCallbackHandler : ICallbackHandler
         await _telegramBotClient.AnswerCallbackQueryAsync(notification.CallbackQuery.Id, cancellationToken: token);
 
         if (isApproved)
+        {
             await _telegramBotClient.DeleteMessageAsync(chatId, messageId, token);
+        }
+        else
+        {
+            await _telegramBotClient.EditMessageReplyMarkupAsync(chatId, messageId, null, token);
+        }
     }
 }
