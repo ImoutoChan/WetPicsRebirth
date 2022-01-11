@@ -37,6 +37,6 @@ jobs:
       - name: Build
         run: |
           cd Source
-          docker build --tag=imoutochan/wetpicsrebirth:${{ steps.gitversion.outputs.majorMinorPatch }} -t imoutochan/wetpicsrebirth . -f WetPicsRebirth/Dockerfile
-          docker push imoutochan/wetpicsrebirth:${{ steps.gitversion.outputs.majorMinorPatch }}
-          docker push imoutochan/wetpicsrebirth:latest
+          docker build --tag=${{ secrets.DOCKER_HUB_USERNAME }}/wetpicsrebirth:${{ steps.gitversion.outputs.majorMinorPatch }} -t ${{ secrets.DOCKER_HUB_USERNAME }}/wetpicsrebirth . -f WetPicsRebirth/Dockerfile
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/wetpicsrebirth:${{ steps.gitversion.outputs.majorMinorPatch }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/wetpicsrebirth:latest
