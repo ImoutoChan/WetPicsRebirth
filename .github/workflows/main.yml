@@ -42,7 +42,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./Source
-          file: ./WetPicsRebirth/Dockerfile
+          file: ./Source/WetPicsRebirth/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: |
