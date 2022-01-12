@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,10 @@ using WetPicsRebirth.Data;
 namespace WetPicsRebirth.Migrations
 {
     [DbContext(typeof(WetPicsRebirthDbContext))]
-    partial class WetPicsRebirthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220112095707_AddIndexForPostedMedia")]
+    partial class AddIndexForPostedMedia
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

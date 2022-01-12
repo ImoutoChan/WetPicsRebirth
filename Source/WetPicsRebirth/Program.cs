@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Quartz;
 using WetPicsRebirth.Data;
 using WetPicsRebirth.Services;
+using WetPicsRebirth.Services.UserAccounts;
 
 namespace WetPicsRebirth;
 
@@ -33,6 +34,7 @@ public static class Program
             })
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
             .ConfigureServices(x => x.AddHostedService<TelegramHostedService>())
+            .ConfigureServices(x => x.AddHostedService<LikesToFavoritesTranslatorHostedService>())
             .ConfigureServices(x => x.AddQuartzHostedService());
 
 

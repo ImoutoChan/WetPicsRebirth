@@ -41,6 +41,9 @@ public class PostedMediaRepository : IPostedMediaRepository
         return result != 0 ? result : null;
     }
 
+    public Task<PostedMedia?> Get(long chatId, int messageId)
+        => _context.PostedMedia.FirstOrDefaultAsync(x => x.ChatId == chatId && x.MessageId == messageId);
+
     public async Task Add(
         long chatId,
         int messageId,

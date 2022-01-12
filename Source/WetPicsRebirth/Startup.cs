@@ -17,6 +17,7 @@ using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
 using WetPicsRebirth.Infrastructure.ImageProcessing;
 using WetPicsRebirth.Jobs;
 using WetPicsRebirth.Services;
+using WetPicsRebirth.Services.UserAccounts;
 
 namespace WetPicsRebirth;
 
@@ -63,13 +64,17 @@ public class Startup
         services.AddTransient<IUsersRepository, UsersRepository>();
         services.AddTransient<IModeratedPostsRepository, ModeratedPostsRepository>();
         services.AddTransient<IUserAccountsRepository, CachedUserAccountsRepository>();
+        services.AddTransient<ILikesToFavoritesTranslator, LikesToFavoritesTranslator>();
         services.AddTransient<UserAccountsRepository, UserAccountsRepository>();
 
         services.AddTransient<IPopularListLoader, PopularListLoader>();
         services.AddHttpClient<IEngineFactory, EngineFactory>();
         services.AddHttpClient<IPixivApiClient, PixivApiClient>();
+        services.AddHttpClient<IImageSourceApi, ImageSourceApi>();
         services.AddTransient<IPixivAuthorization, PixivAuthorization>();
         services.AddImageProcessing();
+
+        services.AddSingleton<ILikesToFavoritesTranslatorScheduler, LikesToFavoritesTranslatorScheduler>();
 
         // mediator
         services.AddMediatR(typeof(Startup));

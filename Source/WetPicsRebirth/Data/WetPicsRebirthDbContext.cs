@@ -58,6 +58,9 @@ public class WetPicsRebirthDbContext : DbContext
         builder
             .Entity<PostedMedia>().HasIndex(x => new { x.ChatId, x.ImageSource, x.PostId });
 
+        builder
+            .Entity<PostedMedia>().HasIndex(x => new { x.ChatId, x.MessageId });
+
         builder.Entity<ModeratedMedia>().HasKey(x => x.Id);
         builder.Entity<ModeratedMedia>().HasIndex(x => new { x.PostId, x.Hash });
         builder.Entity<ModeratedMedia>().HasIndex(x => x.MessageId);

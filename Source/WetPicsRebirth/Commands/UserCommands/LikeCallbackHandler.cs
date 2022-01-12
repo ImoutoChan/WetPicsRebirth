@@ -3,6 +3,7 @@ using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
 using WetPicsRebirth.Services;
+using WetPicsRebirth.Services.UserAccounts;
 
 namespace WetPicsRebirth.Commands.UserCommands;
 
@@ -13,15 +14,18 @@ public class LikeCallbackHandler : ICallbackHandler
 
     private readonly IUsersRepository _usersRepository;
     private readonly IVotesRepository _votesRepository;
+    private readonly ILikesToFavoritesTranslatorScheduler _likesToFavoritesTranslatorScheduler;
 
     public LikeCallbackHandler(
         IUsersRepository usersRepository,
         IVotesRepository votesRepository,
-        ITelegramBotClient telegramBotClient)
+        ITelegramBotClient telegramBotClient,
+        ILikesToFavoritesTranslatorScheduler likesToFavoritesTranslatorScheduler)
     {
         _usersRepository = usersRepository;
         _votesRepository = votesRepository;
         _telegramBotClient = telegramBotClient;
+        _likesToFavoritesTranslatorScheduler = likesToFavoritesTranslatorScheduler;
     }
 
     public async Task Handle(CallbackNotification notification, CancellationToken token)
@@ -51,5 +55,7 @@ public class LikeCallbackHandler : ICallbackHandler
             return;
 
         await _telegramBotClient.EditMessageReplyMarkupAsync(chatId, messageId, Keyboards.WithLikes(counts), token);
+
+        await _likesToFavoritesTranslatorScheduler.Schedule(vote);
     }
 }

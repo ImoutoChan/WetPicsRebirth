@@ -16,4 +16,6 @@ public interface IPostedMediaRepository
         long chatId,
         ImageSource imageSource,
         List<(int Id, string? Md5Hash)> postIdsWithHashes);
+
+    Task<PostedMedia?> Get(long chatId, int messageId);
 }
