@@ -1,10 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.Security.Cryptography;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories;
 using WetPicsRebirth.Infrastructure;
 using WetPicsRebirth.Infrastructure.ImageProcessing;
+using WetPicsRebirth.Infrastructure.Models;
 using WetPicsRebirth.Services;
 
 namespace WetPicsRebirth.Commands.ServiceCommands.Posting;
@@ -119,22 +121,14 @@ public class PostNextHandler : IRequestHandler<PostNext>
         var post = loadedPost.Post;
         var caption = _popularListLoader.CreateCaption(actress.ImageSource, actress.Options, post);
         caption = EnrichCaption(caption);
-
-        var file = _telegramPreparer.Prepare(post.File, post.FileSize);
         var hash = post.PostHeader.Md5Hash ?? GetHash(post.File);
 
-        var sentPost = await _telegramBotClient.SendPhotoAsync(
-            actress.ChatId,
-            new(file),
-            caption,
-            ParseMode.Html,
-            replyMarkup: Keyboards.WithLikes(0));
-
-        var fileId = sentPost.Photo!
-            .OrderByDescending(x => x.Height)
-            .ThenByDescending(x => x.Width)
-            .Select(x => x.FileId)
-            .First();
+        var (sentPost, fileId) = post.Type switch
+        {
+            PostType.Image => await SendPhoto(actress, post, caption),
+            PostType.Video => await SendVideo(actress, post, caption),
+            _ => throw new ArgumentOutOfRangeException(nameof(post.Type))
+        };
 
         await _postedMediaRepository.Add(
             actress.ChatId,
@@ -145,7 +139,40 @@ public class PostNextHandler : IRequestHandler<PostNext>
             hash);
 
         await post.File.DisposeAsync();
-        await file.DisposeAsync();
+    }
+
+    private async Task<(Message sentPost, string fileId)> SendPhoto(Actress actress, Post post, string caption)
+    {
+        await using var file = _telegramPreparer.Prepare(post.File, post.FileSize);
+
+        var sentPost = await _telegramBotClient.SendPhotoAsync(
+            actress.ChatId,
+            new InputOnlineFile(file),
+            caption,
+            ParseMode.Html,
+            replyMarkup: Keyboards.WithLikes(0));
+
+        var fileId = sentPost.Photo!
+            .OrderByDescending(x => x.Height)
+            .ThenByDescending(x => x.Width)
+            .Select(x => x.FileId)
+            .First();
+
+        return (sentPost, fileId);
+    }
+
+    private async Task<(Message sentPost, string fileId)> SendVideo(Actress actress, Post post, string caption)
+    {
+        var sentPost = await _telegramBotClient.SendVideoAsync(
+            actress.ChatId,
+            new InputOnlineFile(post.File),
+            caption: caption,
+            parseMode: ParseMode.Html,
+            replyMarkup: Keyboards.WithLikes(0));
+
+        var fileId = sentPost.Video!.FileId;
+
+        return (sentPost, fileId);
     }
 
     private static string GetHash(Stream file)

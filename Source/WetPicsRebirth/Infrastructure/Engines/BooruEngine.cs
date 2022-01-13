@@ -30,6 +30,7 @@ public class BooruEngine : IPopularListLoaderEngine
     public async Task<LoadedPost> LoadPost(PostHeader postHeader)
     {
         var post = await _loader.LoadPostAsync(postHeader.Id);
+
         var response = await _httpClient.GetAsync(post.OriginalUrl);
         response.EnsureSuccessStatusCode();
         var stream = await response.Content.ReadAsStreamAsync();
