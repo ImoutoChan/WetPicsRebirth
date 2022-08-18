@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography;
 using WetPicsRebirth.Data.Repositories;
 using WetPicsRebirth.Infrastructure.ImageProcessing;
-using WetPicsRebirth.Infrastructure.Models;
 using WetPicsRebirth.Services;
 
 namespace WetPicsRebirth.Commands.ServiceCommands;
@@ -37,7 +36,7 @@ public class CheckPostQueryHandler : IRequestHandler<CheckPostQuery, bool>
         var sentPost = await _telegramBotClient.SendPhotoAsync(
             request.ModeratorId,
             new(file),
-            CreateCaption(post),
+            post.PostHtmlCaption,
             ParseMode.Html,
             replyMarkup: Keyboards.WithModeration,
             cancellationToken: cancellationToken);
@@ -46,8 +45,6 @@ public class CheckPostQueryHandler : IRequestHandler<CheckPostQuery, bool>
 
         return false;
     }
-
-    private static string CreateCaption(Post post) => $"<a href=\"https://www.pixiv.net/member_illust.php?mode=medium&illust_id={post.PostHeader.Id}\">pixiv</a>";
 
     private static string GetHash(Stream file)
     {
