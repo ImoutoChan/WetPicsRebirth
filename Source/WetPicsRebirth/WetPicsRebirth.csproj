@@ -21,7 +21,7 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
 		<PackageReference Include="Telegram.Bot" Version="18.0.0" />
 		<PackageReference Include="Quartz" Version="3.4.0" />
-		<PackageReference Include="linq2db.EntityFrameworkCore" Version="6.8.0" />
+		<PackageReference Include="linq2db.EntityFrameworkCore" Version="6.9.0" />
 	</ItemGroup>
 
 	<ItemGroup>
