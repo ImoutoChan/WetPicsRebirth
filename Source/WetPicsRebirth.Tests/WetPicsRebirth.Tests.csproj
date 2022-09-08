@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Bogus" Version="34.0.2" />
         <PackageReference Include="FluentAssertions" Version="6.7.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0" />
         <PackageReference Include="xunit" Version="2.4.2" />
@@ -24,10 +25,6 @@
     <ItemGroup>
       <ProjectReference Include="..\WetPicsRebirth.Infrastructure.ImageProcessing\WetPicsRebirth.Infrastructure.ImageProcessing.csproj" />
       <ProjectReference Include="..\WetPicsRebirth\WetPicsRebirth.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="TestSubjects\" />
     </ItemGroup>
 
     <ItemGroup>

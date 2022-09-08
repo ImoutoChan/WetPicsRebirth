@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -138,14 +139,17 @@ public class PopularListLoaderTests
     [InlineData("mini loli with breasts")]
     public async Task PostWithLoliShouldRequestModeration(string tag)
     {
+        var pixivPostHeaderFaker = new Faker<PixivPostHeader>()
+            .CustomInstantiator(x => new PixivPostHeader(
+                92561568,
+                x.Image.PicsumUrl(),
+                x.Internet.UserName(),
+                x.Name.FullName(),
+                new[] { tag }));
+        
         var post = await _loader.LoadPost(
             ImageSource.Pixiv,
-            new PixivPostHeader(
-                92561568,
-                "https://i.pximg.net/img-original/img/2021/09/06/22/46/24/92561568_p0.jpg",
-                "ミソラ　逆レ",
-                "腿之助兵衛",
-                new []{ tag }));
+            pixivPostHeaderFaker.Generate());
 
         post.RequireModeration.Should().BeTrue();
     }
