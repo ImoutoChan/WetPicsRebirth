@@ -60,7 +60,8 @@ public class PostWeeklyTopHandler : IRequestHandler<PostWeeklyTop>
         if (!fileIds.Any())
             return;
 
-        await _telegramBotClient.SendMediaGroupAsync(scene.ChatId, fileIds);
+        var topMessage = await _telegramBotClient.SendMediaGroupAsync(scene.ChatId, fileIds);
+        await _telegramBotClient.PinChatMessageAsync(scene.ChatId, topMessage[0].MessageId);
     }
 
     private static string GetCaption(List<PostedMedia> topMedia)
