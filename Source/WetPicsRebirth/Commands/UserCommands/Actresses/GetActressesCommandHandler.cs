@@ -3,7 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Telegram.Bot.Types;
 using WetPicsRebirth.Commands.UserCommands.Abstract;
 using WetPicsRebirth.Data.Entities;
-using WetPicsRebirth.Data.Repositories;
+using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.Extensions;
 
 namespace WetPicsRebirth.Commands.UserCommands.Actresses;

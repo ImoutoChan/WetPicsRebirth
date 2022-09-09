@@ -1,5 +1,5 @@
 ﻿using System.Security.Cryptography;
-using WetPicsRebirth.Data.Repositories;
+using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.Infrastructure.ImageProcessing;
 using WetPicsRebirth.Services;
 

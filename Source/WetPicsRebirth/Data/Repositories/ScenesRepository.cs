@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WetPicsRebirth.Data.Entities;
+using WetPicsRebirth.Data.Repositories.Abstract;
 
 namespace WetPicsRebirth.Data.Repositories;
 
@@ -25,6 +26,9 @@ internal class ScenesRepository : IScenesRepository
             .Where(x => x.LastPostedTime!.Value.Plus(Duration.FromMinutes(x.MinutesInterval)) <= now)
             .ToList();
     }
+
+    public async Task<IReadOnlyCollection<Scene>> GetAll() 
+        => await _context.Scenes.Where(x => x.Enabled).ToListAsync();
 
     public async Task CreateOrUpdate(long targetChatId, int minInterval)
     {

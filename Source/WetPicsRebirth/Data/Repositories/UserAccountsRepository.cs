@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WetPicsRebirth.Data.Entities;
+using WetPicsRebirth.Data.Repositories.Abstract;
 
 namespace WetPicsRebirth.Data.Repositories;
 

@@ -33,6 +33,7 @@ public static class Program
                     .AddJsonFile("appsettings.Cache.json", true);
             })
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
+            .ConfigureSerilog()
             .ConfigureServices(x => x.AddHostedService<TelegramHostedService>())
             .ConfigureServices(x => x.AddHostedService<LikesToFavoritesTranslatorHostedService>())
             .ConfigureServices(x => x.AddQuartzHostedService());

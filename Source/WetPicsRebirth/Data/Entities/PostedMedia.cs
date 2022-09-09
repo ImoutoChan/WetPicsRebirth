@@ -7,6 +7,7 @@ public class PostedMedia : IEntityBase
         long chatId,
         int messageId,
         string fileId,
+        MediaType fileType,
         ImageSource imageSource,
         int postId,
         string postHash)
@@ -15,6 +16,7 @@ public class PostedMedia : IEntityBase
         ChatId = chatId;
         MessageId = messageId;
         FileId = fileId;
+        FileType = fileType;
         ImageSource = imageSource;
         PostId = postId;
         PostHash = postHash;
@@ -27,6 +29,8 @@ public class PostedMedia : IEntityBase
     public int MessageId { get; private set; }
 
     public string FileId { get; private set; }
+    
+    public MediaType FileType { get; private set; }
 
     public ImageSource ImageSource { get; private set; }
 
@@ -40,4 +44,11 @@ public class PostedMedia : IEntityBase
 
 
     public IReadOnlyCollection<Vote>? Votes { get; set; }
+}
+
+public enum MediaType
+{
+    Unknown,
+    Photo,
+    Video
 }

@@ -1,6 +1,6 @@
 ﻿using WetPicsRebirth.Data.Entities;
 
-namespace WetPicsRebirth.Data.Repositories;
+namespace WetPicsRebirth.Data.Repositories.Abstract;
 
 public interface IScenesRepository
 {
@@ -11,4 +11,6 @@ public interface IScenesRepository
     Task Disable(long targetChatId);
 
     Task<IReadOnlyCollection<Scene>> GetEnabledAndReady();
+
+    Task<IReadOnlyCollection<Scene>> GetAll();
 }

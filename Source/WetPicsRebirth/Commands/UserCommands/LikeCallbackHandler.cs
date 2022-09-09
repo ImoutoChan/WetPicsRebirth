@@ -1,6 +1,6 @@
 ﻿using WetPicsRebirth.Commands.UserCommands.Abstract;
 using WetPicsRebirth.Data.Entities;
-using WetPicsRebirth.Data.Repositories;
+using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
 using WetPicsRebirth.Services;
 using WetPicsRebirth.Services.UserAccounts;

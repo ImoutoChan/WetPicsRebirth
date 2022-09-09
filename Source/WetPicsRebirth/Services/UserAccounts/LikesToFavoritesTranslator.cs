@@ -1,5 +1,6 @@
 ﻿using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories;
+using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.Infrastructure;
 
 namespace WetPicsRebirth.Services.UserAccounts;
@@ -7,6 +8,7 @@ namespace WetPicsRebirth.Services.UserAccounts;
 internal class LikesToFavoritesTranslator : ILikesToFavoritesTranslator
 {
     private readonly IImageSourceApi _imageSourceApi;
+    private readonly IHostEnvironment _hostEnvironment;
     private readonly ILogger<LikesToFavoritesTranslator> _logger;
     private readonly IPostedMediaRepository _postedMediaRepository;
     private readonly IUserAccountsRepository _userAccountsRepository;
@@ -15,12 +17,14 @@ internal class LikesToFavoritesTranslator : ILikesToFavoritesTranslator
         IUserAccountsRepository userAccountsRepository,
         IPostedMediaRepository postedMediaRepository,
         ILogger<LikesToFavoritesTranslator> logger,
-        IImageSourceApi imageSourceApi)
+        IImageSourceApi imageSourceApi,
+        IHostEnvironment hostEnvironment)
     {
         _userAccountsRepository = userAccountsRepository;
         _postedMediaRepository = postedMediaRepository;
         _logger = logger;
         _imageSourceApi = imageSourceApi;
+        _hostEnvironment = hostEnvironment;
     }
 
     public async Task Translate(Vote vote)
@@ -46,6 +50,7 @@ internal class LikesToFavoritesTranslator : ILikesToFavoritesTranslator
             return;
         }
 
-        await _imageSourceApi.FavoritePost(account, media.PostId);
+        if (!_hostEnvironment.IsDevelopment())
+            await _imageSourceApi.FavoritePost(account, media.PostId);
     }
 }

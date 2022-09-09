@@ -9,6 +9,7 @@ using Quartz;
 using WetPicsRebirth.Commands.UserCommands.Abstract;
 using WetPicsRebirth.Data;
 using WetPicsRebirth.Data.Repositories;
+using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.EntryPoint.Service;
 using WetPicsRebirth.Infrastructure;
 using WetPicsRebirth.Infrastructure.Engines;
@@ -96,11 +97,18 @@ public class Startup
         services.AddQuartz(c =>
         {
             c.UseMicrosoftDependencyInjectionJobFactory();
+            
             c.AddJob<PostingJob>(j => j.WithIdentity(nameof(PostingJob)));
             c.AddTrigger(t => t
                 .ForJob(nameof(PostingJob))
                 .StartNow()
                 .WithSimpleSchedule(b => b.WithIntervalInSeconds(30).RepeatForever()));
+            
+            c.AddJob<PostWeeklyTopJob>(j => j.WithIdentity(nameof(PostWeeklyTopJob)));
+            c.AddTrigger(t => t
+                .ForJob(nameof(PostWeeklyTopJob))
+                .StartNow()
+                .WithCronSchedule("0 00 17 ? * SUN"));
         });
 
     }

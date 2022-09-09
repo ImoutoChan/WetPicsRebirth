@@ -1,4 +1,4 @@
-namespace WetPicsRebirth.Data.Repositories;
+namespace WetPicsRebirth.Data.Repositories.Abstract;
 
 public interface IModeratedPostsRepository
 {

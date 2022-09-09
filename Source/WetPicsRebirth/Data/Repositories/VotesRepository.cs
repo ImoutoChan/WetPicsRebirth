@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WetPicsRebirth.Data.Entities;
+using WetPicsRebirth.Data.Repositories.Abstract;
 
 namespace WetPicsRebirth.Data.Repositories;
 
@@ -25,5 +26,31 @@ public class VotesRepository : IVotesRepository
             return await _context.Votes.CountAsync(x => x.ChatId == vote.ChatId && x.MessageId == vote.MessageId);
 
         return -1;
+    }
+
+    public async Task<IReadOnlyCollection<PostedMedia>> GetTopForWeek(int count)
+    {
+        var now = SystemClock.Instance.GetCurrentInstant();
+        
+        var ids = await _context.Votes
+            .Join(
+                _context.PostedMedia, 
+                x => new { x.ChatId, x.MessageId }, 
+                x => new { x.ChatId, x.MessageId }, 
+                (x, y) =>new
+                {
+                    Vote = x,
+                    Post = y
+                })
+            .Where(x => now - x.Post.AddedDate < Duration.FromDays(7))
+            .GroupBy(x => x.Post.Id)
+            .OrderByDescending(x => x.Count())
+            .Take(count)
+            .Select(x => x.Key)
+            .ToListAsync();
+
+        var posts = await _context.PostedMedia.Where(x => ids.Contains(x.Id)).ToListAsync();
+
+        return ids.Select(x => posts.First(y => y.Id == x)).ToList();
     }
 }

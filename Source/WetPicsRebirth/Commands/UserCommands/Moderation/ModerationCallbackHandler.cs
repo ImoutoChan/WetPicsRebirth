@@ -1,5 +1,5 @@
 ﻿using WetPicsRebirth.Commands.UserCommands.Abstract;
-using WetPicsRebirth.Data.Repositories;
+using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
 
 namespace WetPicsRebirth.Commands.UserCommands.Moderation;

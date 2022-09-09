@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WetPicsRebirth.Data.Entities;
+using WetPicsRebirth.Data.Repositories.Abstract;
 
 namespace WetPicsRebirth.Data.Repositories;
 
@@ -48,11 +49,13 @@ public class PostedMediaRepository : IPostedMediaRepository
         long chatId,
         int messageId,
         string fileId,
+        MediaType fileType,
         ImageSource imageSource,
         int postId,
         string postHash)
     {
-        var posted = new PostedMedia(Guid.NewGuid(), chatId, messageId, fileId, imageSource, postId, postHash);
+        var id = Guid.NewGuid();
+        var posted = new PostedMedia(id, chatId, messageId, fileId, fileType, imageSource, postId, postHash);
         _context.PostedMedia.Add(posted);
         await _context.SaveChangesAsync();
     }

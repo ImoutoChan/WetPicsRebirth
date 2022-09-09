@@ -1,6 +1,6 @@
 using WetPicsRebirth.Data.Entities;
 
-namespace WetPicsRebirth.Data.Repositories;
+namespace WetPicsRebirth.Data.Repositories.Abstract;
 
 public interface IPostedMediaRepository
 {
@@ -8,6 +8,7 @@ public interface IPostedMediaRepository
         long chatId,
         int messageId,
         string fileId,
+        MediaType fileType,
         ImageSource imageSource,
         int postId,
         string postHash);
