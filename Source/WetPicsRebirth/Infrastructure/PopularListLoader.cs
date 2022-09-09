@@ -17,7 +17,7 @@ public class PopularListLoader : IPopularListLoader
 
     public Task<IReadOnlyCollection<PostHeader>> Load(ImageSource source, string options)
     {
-        return _memoryCache.GetOrCreateAsync(source + options, entry =>
+        return _memoryCache.GetRequiredOrCreateAsync(source + options, entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
             return _engineFactory.Get(source).LoadPopularList(options);

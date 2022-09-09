@@ -24,8 +24,8 @@ public class PopularListLoaderTests
     {
         var config = new ConfigurationBuilder().AddJsonFile("appsettings.Development.json", false).Build();
 
-        var pixivOptions = Options.Create(config.GetSection("Pixiv").Get<PixivConfiguration>());
-        var danbooruOptions = Options.Create(config.GetSection("Danbooru").Get<DanbooruConfiguration>());
+        var pixivOptions = Options.Create(config.GetSection("Pixiv").GetRequired<PixivConfiguration>());
+        var danbooruOptions = Options.Create(config.GetSection("Danbooru").GetRequired<DanbooruConfiguration>());
 
         _loader = new(
             new EngineFactory(

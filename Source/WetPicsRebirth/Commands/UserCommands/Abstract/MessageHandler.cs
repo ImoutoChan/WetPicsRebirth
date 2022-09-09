@@ -68,7 +68,7 @@ public abstract class MessageHandler : IMessageHandler
 
     private async Task<User> GetUser(CancellationToken cancellationToken)
     {
-        return await _memoryCache.GetOrCreateAsync(
+        return await _memoryCache.GetRequiredOrCreateAsync(
             MeMemoryCacheKey,
             entry =>
             {

@@ -20,7 +20,7 @@ public class TelegramHostedService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var address = _configuration.GetValue<string>("WebHookAddress");
+        var address = _configuration.GetRequiredValue<string>("WebHookAddress");
 
         _logger.LogInformation("Removing WebHook");
         await _telegramBotClient.DeleteWebhookAsync(cancellationToken: cancellationToken);

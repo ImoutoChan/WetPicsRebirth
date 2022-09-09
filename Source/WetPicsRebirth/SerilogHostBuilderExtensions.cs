@@ -22,8 +22,8 @@ public static class SerilogHostBuilderExtensions
                         context.Configuration,
                         (logger, configuration) =>
                         {
-                            var botToken = configuration.GetValue<string>("TelegramApiKey");
-                            var botModerator = configuration.GetValue<int>("ModeratorId");
+                            var botToken = configuration.GetRequiredValue<string>("TelegramApiKey");
+                            var botModerator = configuration.GetRequiredValue<int>("ModeratorId");
 
                             logger
                                 .Enrich.FromLogContext()

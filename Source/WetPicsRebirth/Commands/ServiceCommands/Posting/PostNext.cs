@@ -48,8 +48,8 @@ public class PostNextHandler : IRequestHandler<PostNext>
         _postedMediaRepository = postedMediaRepository;
         _telegramPreparer = telegramPreparer;
         _moderationService = moderationService;
-        _channelLink = configuration.GetValue<string>("ChannelInviteLink");
-        _accessLink = configuration.GetValue<string>("AccessLink");
+        _channelLink = configuration.GetRequiredValue<string>("ChannelInviteLink");
+        _accessLink = configuration.GetRequiredValue<string>("AccessLink");
     }
 
     public async Task<Unit> Handle(PostNext request, CancellationToken cancellationToken)

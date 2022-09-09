@@ -48,7 +48,7 @@ public class Startup
             x =>
             {
                 var client = x.GetRequiredService<HttpClient>();
-                var apiKey = Configuration.GetValue<string>("TelegramApiKey");
+                var apiKey = Configuration.GetRequiredValue<string>("TelegramApiKey");
 
                 return new TelegramBotClient(apiKey, client);
             });
@@ -90,7 +90,7 @@ public class Startup
 
         // data
         services.AddDbContext<WetPicsRebirthDbContext>(
-            x => x.UseNpgsql(Configuration.GetConnectionString("WetPicsRebirthOnPostgres"),
+            x => x.UseNpgsql(Configuration.GetRequiredConnectionString("WetPicsRebirthOnPostgres"),
                 builder => builder.UseNodaTime()));
 
         // quartz
