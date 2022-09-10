@@ -9,6 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WetPicsRebirth.Tests", "Wet
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WetPicsRebirth.Infrastructure.ImageProcessing", "WetPicsRebirth.Infrastructure.ImageProcessing\WetPicsRebirth.Infrastructure.ImageProcessing.csproj", "{FB76AE84-C777-4A79-A74A-CE71CF8F9F5A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{2166D0B5-BFBC-46D4-9B13-65E8BCE165DD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{34586BE1-0596-4BB9-80DF-ABE812A2CEC5}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\main.yml = ..\.github\workflows\main.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,5 +40,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9D6CC45E-DD35-45C2-B43F-B44D8A5E7370}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{34586BE1-0596-4BB9-80DF-ABE812A2CEC5} = {2166D0B5-BFBC-46D4-9B13-65E8BCE165DD}
 	EndGlobalSection
 EndGlobal
