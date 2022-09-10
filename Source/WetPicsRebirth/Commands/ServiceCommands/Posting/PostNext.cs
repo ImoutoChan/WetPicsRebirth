@@ -88,7 +88,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
             }
             catch (NoNewImagesInActressException e)
             {
-                _logger.LogWarning(
+                _logger.LogInformation(
                     e,
                     "Unable to post for actress {ImageSource} in chat {ChatId}",
                     selectedActress.ImageSource,
