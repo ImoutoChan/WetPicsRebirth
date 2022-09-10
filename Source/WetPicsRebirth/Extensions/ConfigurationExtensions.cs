@@ -1,4 +1,4 @@
-﻿namespace WetPicsRebirth;
+﻿namespace WetPicsRebirth.Extensions;
 
 public static class ConfigurationExtensions
 {

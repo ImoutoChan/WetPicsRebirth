@@ -4,7 +4,7 @@ using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Exceptions;
 
-namespace WetPicsRebirth;
+namespace WetPicsRebirth.Extensions;
 
 public static class SerilogHostBuilderExtensions
 {

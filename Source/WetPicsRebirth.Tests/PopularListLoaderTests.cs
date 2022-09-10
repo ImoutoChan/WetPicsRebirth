@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using WetPicsRebirth.Data.Entities;
+using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Infrastructure;
 using WetPicsRebirth.Infrastructure.Engines;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv;

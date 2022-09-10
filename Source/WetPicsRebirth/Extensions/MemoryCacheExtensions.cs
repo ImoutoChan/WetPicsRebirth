@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace WetPicsRebirth;
+namespace WetPicsRebirth.Extensions;
 
 public static class MemoryCacheExtensions
 {

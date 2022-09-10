@@ -4,6 +4,8 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories.Abstract;
+using WetPicsRebirth.Exceptions;
+using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Infrastructure;
 using WetPicsRebirth.Infrastructure.ImageProcessing;
 using WetPicsRebirth.Infrastructure.Models;
@@ -84,11 +86,19 @@ public class PostNextHandler : IRequestHandler<PostNext>
                 await _scenesRepository.SetPostedAt(scene.ChatId, now);
                 break;
             }
+            catch (NoNewImagesInActressException e)
+            {
+                _logger.LogWarning(
+                    e,
+                    "Unable to post for actress {ImageSource} in chat {ChatId}",
+                    selectedActress.ImageSource,
+                    selectedActress.ChatId);
+            }
             catch (Exception e)
             {
                 _logger.LogError(
                     e,
-                    "Unable to post for actress {ImageSource} {ChatId}",
+                    "Unable to post for actress {ImageSource} in chat {ChatId}",
                     selectedActress.ImageSource,
                     selectedActress.ChatId);
             }
@@ -104,7 +114,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
 
         if (newId == null)
         {
-            throw new("No new images in actress");
+            throw new NoNewImagesInActressException();
         }
 
         var loadedPost = await _popularListLoader.LoadPost(actress.ImageSource, list.First(x => x.Id == newId.Value));

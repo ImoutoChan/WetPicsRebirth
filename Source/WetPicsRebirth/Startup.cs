@@ -11,6 +11,7 @@ using WetPicsRebirth.Data;
 using WetPicsRebirth.Data.Repositories;
 using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.EntryPoint.Service;
+using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Infrastructure;
 using WetPicsRebirth.Infrastructure.Engines;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv;

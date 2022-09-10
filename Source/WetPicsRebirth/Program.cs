@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 using WetPicsRebirth.Data;
+using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Services;
 using WetPicsRebirth.Services.UserAccounts;
 

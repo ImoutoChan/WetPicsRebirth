@@ -2,6 +2,7 @@
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
+using WetPicsRebirth.Extensions;
 
 namespace WetPicsRebirth.Commands.UserCommands.Abstract;
 
