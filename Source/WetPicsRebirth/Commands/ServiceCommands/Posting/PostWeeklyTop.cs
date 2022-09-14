@@ -67,7 +67,7 @@ public class PostWeeklyTopHandler : IRequestHandler<PostWeeklyTop>
     private static string GetCaption(List<PostedMedia> topMedia)
     {
         var mediaLinks = topMedia.Select((x, i) =>
-            $"<a href=\"https://t.me/c/{x.ChatId}/{x.MessageId}\">{i + 1}.</a>" +
+            $"<a href=\"https://t.me/c/{x.ChatId.ToString().Replace("-100", "")}/{x.MessageId}\">{i + 1}.</a>" +
             $" <a href=\"{GetLinkToPost(x.ImageSource, x.PostId)}\">{x.ImageSource.ToString().ToLower()}</a>");
 
         var caption = "💙 Популярное за неделю ~ " + string.Join(" | ", mediaLinks);
