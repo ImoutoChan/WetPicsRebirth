@@ -86,7 +86,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
                 await _scenesRepository.SetPostedAt(scene.ChatId, now);
                 break;
             }
-            catch (NoNewImagesInActressException e)
+            catch (NoNewPostsInActressException e)
             {
                 _logger.LogInformation(
                     e,
@@ -113,9 +113,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
         var newId = await _postedMediaRepository.GetFirstNew(actress.ChatId, actress.ImageSource, postIds);
 
         if (newId == null)
-        {
-            throw new NoNewImagesInActressException();
-        }
+            throw new NoNewPostsInActressException();
 
         var loadedPost = await _popularListLoader.LoadPost(actress.ImageSource, list.First(x => x.Id == newId.Value));
 
@@ -131,16 +129,9 @@ public class PostNextHandler : IRequestHandler<PostNext>
         }
 
         var post = loadedPost.Post;
-        var caption = _popularListLoader.CreateCaption(actress.ImageSource, actress.Options, post);
-        caption = EnrichCaption(caption);
         var hash = post.PostHeader.Md5Hash ?? GetHash(post.File);
 
-        var ((sentPost, fileId), fileType) = post.Type switch
-        {
-            MediaType.Photo => (await SendPhoto(actress, post, caption), MediaType.Photo),
-            MediaType.Video => (await SendVideo(actress, post, caption), MediaType.Video),
-            _ => throw new ArgumentOutOfRangeException(nameof(post.Type))
-        };
+        var (sentPost, fileId, fileType) = await SentPostToTelegram(actress, post);
 
         await _postedMediaRepository.Add(
             actress.ChatId,
@@ -152,6 +143,29 @@ public class PostNextHandler : IRequestHandler<PostNext>
             hash);
 
         await post.File.DisposeAsync();
+    }
+
+    private async Task<(Message sentPost, string fileId, MediaType fileType)> SentPostToTelegram(
+        Actress actress,
+        Post post)
+    {
+        try
+        {
+            var caption = _popularListLoader.CreateCaption(actress.ImageSource, actress.Options, post);
+            caption = EnrichCaption(caption);
+            var ((sentPost, fileId), fileType) = post.Type switch
+            {
+                MediaType.Photo => (await SendPhoto(actress, post, caption), MediaType.Photo),
+                MediaType.Video => (await SendVideo(actress, post, caption), MediaType.Video),
+                _ => throw new ArgumentOutOfRangeException(nameof(post.Type))
+            };
+            return (sentPost, fileId, fileType);
+
+        }
+        catch (Exception e)
+        {
+            throw new UnableToPostForActressException(post.PostHeader.Id, e);
+        }
     }
 
     private async Task<(Message sentPost, string fileId)> SendPhoto(Actress actress, Post post, string caption)
