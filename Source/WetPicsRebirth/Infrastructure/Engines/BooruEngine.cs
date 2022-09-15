@@ -41,11 +41,14 @@ public class BooruEngine : IPopularListLoaderEngine
             throw new("Unexpected length");
         }
 
-        var resultPost = new Post(postHeader, post.OriginalUrl, stream, length.Value);
+        var resultPost = new Post(postHeader, GetMediaUrl(post), stream, length.Value);
         var requireModeration = CheckForModeration(post);
 
         return new(resultPost, requireModeration);
     }
+
+    private static string GetMediaUrl(Imouto.BooruParser.Model.Base.Post post)
+        => post.OriginalUrl.EndsWith(".zip") ? post.SampleUrl : post.OriginalUrl;
 
     public string CreateCaption(ImageSource source, string options, Post post)
     {
