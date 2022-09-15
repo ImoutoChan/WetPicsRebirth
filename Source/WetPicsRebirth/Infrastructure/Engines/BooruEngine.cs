@@ -30,8 +30,9 @@ public class BooruEngine : IPopularListLoaderEngine
     public async Task<LoadedPost> LoadPost(PostHeader postHeader)
     {
         var post = await _loader.LoadPostAsync(postHeader.Id);
+        var mediaUrl = GetMediaUrl(post);
 
-        var response = await _httpClient.GetAsync(post.OriginalUrl);
+        var response = await _httpClient.GetAsync(mediaUrl);
         response.EnsureSuccessStatusCode();
         var stream = await response.Content.ReadAsStreamAsync();
         var length = response.Content.Headers.ContentLength;
@@ -41,7 +42,7 @@ public class BooruEngine : IPopularListLoaderEngine
             throw new("Unexpected length");
         }
 
-        var resultPost = new Post(postHeader, GetMediaUrl(post), stream, length.Value);
+        var resultPost = new Post(postHeader, mediaUrl, stream, length.Value);
         var requireModeration = CheckForModeration(post);
 
         return new(resultPost, requireModeration);
