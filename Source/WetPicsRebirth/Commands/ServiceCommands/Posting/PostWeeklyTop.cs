@@ -70,7 +70,7 @@ public class PostWeeklyTopHandler : IRequestHandler<PostWeeklyTop>
             $"<a href=\"https://t.me/c/{x.ChatId.ToString().Replace("-100", "")}/{x.MessageId}\">{i + 1}.</a>" +
             $" <a href=\"{GetLinkToPost(x.ImageSource, x.PostId)}\">{x.ImageSource.ToString().ToLower()}</a>");
 
-        var caption = "💙 Популярное за неделю ~ " + string.Join(" | ", mediaLinks);
+        var caption = "💙 #Популярное за неделю ~ " + string.Join(" | ", mediaLinks);
         return caption;
     }
 
