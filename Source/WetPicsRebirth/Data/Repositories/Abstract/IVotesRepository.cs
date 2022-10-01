@@ -6,5 +6,5 @@ public interface IVotesRepository
 {
     Task<int> AddOrIgnore(Vote vote);
     
-    Task<IReadOnlyCollection<PostedMedia>> GetTopForWeek(int count);
+    Task<IReadOnlyCollection<PostedMedia>> GetTop(int count, int forLastDays);
 }

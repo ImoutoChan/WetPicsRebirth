@@ -28,7 +28,7 @@ public class VotesRepository : IVotesRepository
         return -1;
     }
 
-    public async Task<IReadOnlyCollection<PostedMedia>> GetTopForWeek(int count)
+    public async Task<IReadOnlyCollection<PostedMedia>> GetTop(int count, int forLastDays)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
         
@@ -42,7 +42,7 @@ public class VotesRepository : IVotesRepository
                     Vote = x,
                     Post = y
                 })
-            .Where(x => now - x.Post.AddedDate < Duration.FromDays(7))
+            .Where(x => now - x.Post.AddedDate < Duration.FromDays(forLastDays))
             .GroupBy(x => x.Post.Id)
             .OrderByDescending(x => x.Count())
             .Take(count)

@@ -110,6 +110,12 @@ public class Startup
                 .ForJob(nameof(PostWeeklyTopJob))
                 .StartNow()
                 .WithCronSchedule("0 00 17 ? * SUN"));
+
+            c.AddJob<PostMonthlyTopJob>(j => j.WithIdentity(nameof(PostMonthlyTopJob)));
+            c.AddTrigger(t => t
+                .ForJob(nameof(PostMonthlyTopJob))
+                .StartNow()
+                .WithCronSchedule("0 0 16 1 * ? *"));
         });
 
     }

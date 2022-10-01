@@ -4,15 +4,17 @@ using WetPicsRebirth.Data.Repositories.Abstract;
 
 namespace WetPicsRebirth.Commands.ServiceCommands.Posting;
 
-public record PostWeeklyTop : IRequest;
+public record PostTop(TopType Type) : IRequest;
 
-public class PostWeeklyTopHandler : IRequestHandler<PostWeeklyTop>
+public enum TopType { Weekly, Monthly }
+
+public class PostTopHandler : IRequestHandler<PostTop>
 {
     private readonly IScenesRepository _scenesRepository;
     private readonly ITelegramBotClient _telegramBotClient;
     private readonly IVotesRepository _votesRepository;
 
-    public PostWeeklyTopHandler(
+    public PostTopHandler(
         IScenesRepository scenesRepository,
         ITelegramBotClient telegramBotClient,
         IVotesRepository votesRepository)
@@ -22,25 +24,28 @@ public class PostWeeklyTopHandler : IRequestHandler<PostWeeklyTop>
         _votesRepository = votesRepository;
     }
 
-    public async Task<Unit> Handle(PostWeeklyTop _, CancellationToken __)
+    public async Task<Unit> Handle(PostTop command, CancellationToken __)
     {
+        var topType = command.Type;
+        var forLastDays = topType == TopType.Weekly ? 7 : 30;
+        
         var scenes = await _scenesRepository.GetAll();
         
         foreach (var scene in scenes.Where(x => x.Enabled))
         {
-            var posts = await _votesRepository.GetTopForWeek(10);
+            var posts = await _votesRepository.GetTop(10, forLastDays);
         
             if (posts.Count > 0)
-                await PostWeeklyTopForScene(scene, posts);
+                await PostTopForScene(topType, scene, posts);
         }
         
         return Unit.Value;
     }
 
-    private async Task PostWeeklyTopForScene(Scene scene, IReadOnlyCollection<PostedMedia> postedMedia)
+    private async Task PostTopForScene(TopType topType, Scene scene, IReadOnlyCollection<PostedMedia> postedMedia)
     {
         var topMedia = postedMedia.Where(x => x.FileType != MediaType.Unknown).ToList();
-        var caption = GetCaption(topMedia);
+        var caption = GetCaption(topType, topMedia);
 
         var fileIds = topMedia
             .Select((x, i) =>
@@ -64,13 +69,15 @@ public class PostWeeklyTopHandler : IRequestHandler<PostWeeklyTop>
         await _telegramBotClient.PinChatMessageAsync(scene.ChatId, topMessage[0].MessageId);
     }
 
-    private static string GetCaption(List<PostedMedia> topMedia)
+    private static string GetCaption(TopType topType, IReadOnlyCollection<PostedMedia> topMedia)
     {
+        var typeCaption = topType == TopType.Weekly ? "неделю" : "месяц";
+        
         var mediaLinks = topMedia.Select((x, i) =>
             $"<a href=\"https://t.me/c/{x.ChatId.ToString().Replace("-100", "")}/{x.MessageId}\">{i + 1}.</a>" +
             $" <a href=\"{GetLinkToPost(x.ImageSource, x.PostId)}\">{x.ImageSource.ToString().ToLower()}</a>");
 
-        var caption = "💙 #Популярное за неделю ~ " + string.Join(" | ", mediaLinks);
+        var caption = $"💙 #Популярное за {typeCaption} ~ " + string.Join(" | ", mediaLinks);
         return caption;
     }
 

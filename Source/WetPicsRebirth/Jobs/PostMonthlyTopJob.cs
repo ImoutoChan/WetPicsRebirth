@@ -1,14 +1,14 @@
-using Quartz;
+﻿using Quartz;
 using WetPicsRebirth.Commands.ServiceCommands.Posting;
 
 namespace WetPicsRebirth.Jobs;
 
-internal sealed class PostWeeklyTopJob : IJob
+internal sealed class PostMonthlyTopJob : IJob
 {
     private readonly IMediator _mediator;
     private static readonly SemaphoreSlim Locker = new(1);
 
-    public PostWeeklyTopJob(IMediator mediator) => _mediator = mediator;
+    public PostMonthlyTopJob(IMediator mediator) => _mediator = mediator;
 
     public async Task Execute(IJobExecutionContext context)
     {
@@ -17,7 +17,7 @@ internal sealed class PostWeeklyTopJob : IJob
 
         try
         {
-            await _mediator.Send(new PostTop(TopType.Weekly));
+            await _mediator.Send(new PostTop(TopType.Monthly));
         }
         finally
         {
