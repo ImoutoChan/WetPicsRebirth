@@ -128,6 +128,13 @@ public class PostNextHandler : IRequestHandler<PostNext>
             }
         }
 
+        if (loadedPost.Post.FileSize > 50_000_000)
+        {
+            var newSkipIds = skipIds.Append(loadedPost.Post.PostHeader.Id).ToArray();
+            await PostNextForActress(actress, newSkipIds);
+            return;
+        }
+
         var post = loadedPost.Post;
         var hash = post.PostHeader.Md5Hash ?? GetHash(post.File);
 
