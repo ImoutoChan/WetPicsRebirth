@@ -72,7 +72,7 @@ public class Startup
         services.AddTransient<IPopularListLoader, PopularListLoader>();
         services.AddHttpClient<IEngineFactory, EngineFactory>();
         services.AddHttpClient<IPixivApiClient, PixivApiClient>();
-        services.AddHttpClient<IImageSourceApi, ImageSourceApi>();
+        services.AddTransient<IImageSourceApi, ImageSourceApi>();
         services.AddTransient<IPixivAuthorization, PixivAuthorization>();
         services.AddImageProcessing();
 
