@@ -54,8 +54,8 @@ public class LikeCallbackHandler : ICallbackHandler
         if (counts <= 0)
             return;
 
-        await _telegramBotClient.EditMessageReplyMarkupAsync(chatId, messageId, Keyboards.WithLikes(counts), token);
-
         await _likesToFavoritesTranslatorScheduler.Schedule(vote);
+
+        await _telegramBotClient.EditMessageReplyMarkupAsync(chatId, messageId, Keyboards.WithLikes(counts), token);
     }
 }

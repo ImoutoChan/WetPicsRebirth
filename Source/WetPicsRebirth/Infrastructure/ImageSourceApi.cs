@@ -1,23 +1,38 @@
-using Imouto.BooruParser.Loaders;
+using Flurl.Http.Configuration;
+using Imouto.BooruParser;
+using Imouto.BooruParser.Implementations.Danbooru;
+using Imouto.BooruParser.Implementations.Yandere;
+using Microsoft.Extensions.Options;
 using WetPicsRebirth.Data.Entities;
 
 namespace WetPicsRebirth.Infrastructure;
 
 public class ImageSourceApi : IImageSourceApi
 {
-    private readonly HttpClient _httpClient;
-
-    public ImageSourceApi(HttpClient httpClient) => _httpClient = httpClient;
-
     public Task FavoritePost(UserAccount account, int postId)
     {
-        IBooruApiAccessor loader = account switch
+        IBooruApiAccessor accessor = account switch
         {
-            { Source: ImageSource.Danbooru } acc => new DanbooruLoader(acc.Login, acc.ApiKey, 1000, _httpClient),
-            { Source: ImageSource.Yandere } acc => new YandereLoader(_httpClient, login: acc.Login, passwordHash: acc.ApiKey),
+            { Source: ImageSource.Danbooru } =>
+                new DanbooruApiLoader(
+                    new PerBaseUrlFlurlClientFactory(), 
+                    Options.Create(new DanbooruSettings()
+                    {
+                        ApiKey = account.ApiKey,
+                        Login = account.Login,
+                        PauseBetweenRequestsInMs = 1000
+                    })),
+            { Source: ImageSource.Yandere } => 
+                new YandereApiLoader(
+                    new PerBaseUrlFlurlClientFactory(), 
+                    Options.Create(new YandereSettings()
+                    {
+                        Login = account.Login,
+                        PasswordHash = account.ApiKey
+                    })),
             _ => throw new ArgumentOutOfRangeException(nameof(account))
         };
 
-        return loader.FavoritePostAsync(postId);
+        return accessor.FavoritePostAsync(postId);
     }
 }

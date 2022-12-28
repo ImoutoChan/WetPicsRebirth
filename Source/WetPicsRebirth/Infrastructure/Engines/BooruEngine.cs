@@ -1,5 +1,4 @@
-﻿using Imouto.BooruParser.Loaders;
-using Imouto.BooruParser.Model.Base;
+﻿using Imouto.BooruParser;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Infrastructure.Models;
@@ -9,10 +8,10 @@ namespace WetPicsRebirth.Infrastructure.Engines;
 
 public class BooruEngine : IPopularListLoaderEngine
 {
-    private readonly IBooruAsyncLoader _loader;
+    private readonly IBooruApiLoader _loader;
     private readonly HttpClient _httpClient;
 
-    public BooruEngine(IBooruAsyncLoader booruAsyncLoader, HttpClient httpClient)
+    public BooruEngine(IBooruApiLoader booruAsyncLoader, HttpClient httpClient)
     {
         _loader = booruAsyncLoader;
         _httpClient = httpClient;
@@ -22,14 +21,14 @@ public class BooruEngine : IPopularListLoaderEngine
     {
         var popularType = GetPopularType(options);
 
-        var popular = await _loader.LoadPopularAsync(popularType);
+        var popular = await _loader.GetPopularPostsAsync(popularType);
 
-        return popular.Results.Select(x => new PostHeader(x.Id, x.Md5)).ToList();
+        return popular.Results.Select(x => new PostHeader(x.Id, x.Md5Hash)).ToList();
     }
 
     public async Task<LoadedPost> LoadPost(PostHeader postHeader)
     {
-        var post = await _loader.LoadPostAsync(postHeader.Id);
+        var post = await _loader.GetPostAsync(postHeader.Id);
         var mediaUrl = GetMediaUrl(post);
 
         var response = await _httpClient.GetAsync(mediaUrl);
@@ -48,8 +47,8 @@ public class BooruEngine : IPopularListLoaderEngine
         return new(resultPost, requireModeration);
     }
 
-    private static string GetMediaUrl(Imouto.BooruParser.Model.Base.Post post)
-        => post.OriginalUrl.EndsWith(".zip") ? post.SampleUrl : post.OriginalUrl;
+    private static string GetMediaUrl(Imouto.BooruParser.Post post)
+        => post.OriginalUrl?.EndsWith(".zip") == true ? post.SampleUrl! : post.OriginalUrl!;
 
     public string CreateCaption(ImageSource source, string options, Post post)
     {
@@ -75,6 +74,6 @@ public class BooruEngine : IPopularListLoaderEngine
         return popularType;
     }
 
-    private static bool CheckForModeration(Imouto.BooruParser.Model.Base.Post post)
-        => post.ImageRating == Rating.Explicit && post.Tags.Any(x => x.Name is "loli" or "shota");
+    private static bool CheckForModeration(Imouto.BooruParser.Post post)
+        => post.Rating == Rating.Explicit && post.Tags.Any(x => x.Name is "loli" or "shota");
 }

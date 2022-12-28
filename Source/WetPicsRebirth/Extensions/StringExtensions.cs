@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using Imouto.BooruParser.Loaders;
+using Imouto.BooruParser;
 
 namespace WetPicsRebirth.Extensions;
 

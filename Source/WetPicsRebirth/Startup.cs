@@ -2,7 +2,7 @@ global using MediatR;
 global using NodaTime;
 global using Telegram.Bot;
 global using Telegram.Bot.Types.Enums;
-
+using Imouto.BooruParser;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Quartz;

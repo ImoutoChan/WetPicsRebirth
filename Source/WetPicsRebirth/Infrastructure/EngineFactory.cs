@@ -1,4 +1,6 @@
-﻿using Imouto.BooruParser.Loaders;
+﻿using Flurl.Http.Configuration;
+using Imouto.BooruParser.Implementations.Danbooru;
+using Imouto.BooruParser.Implementations.Yandere;
 using Microsoft.Extensions.Options;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Infrastructure.Engines;
@@ -26,13 +28,20 @@ public class EngineFactory : IEngineFactory
     {
         return imageSource switch
         {
-            ImageSource.Yandere => new BooruEngine(new YandereLoader(_httpClient), _httpClient),
+            ImageSource.Yandere => new BooruEngine(
+                new YandereApiLoader(
+                    new PerBaseUrlFlurlClientFactory(),
+                    Options.Create(new YandereSettings())), 
+                _httpClient),
             ImageSource.Danbooru => new BooruEngine(
-                new DanbooruLoader(
-                    _danbooruConfiguration.Username,
-                    _danbooruConfiguration.ApiKey,
-                    _danbooruConfiguration.Delay,
-                    _httpClient),
+                new DanbooruApiLoader(
+                    new PerBaseUrlFlurlClientFactory(),
+                    Options.Create(new DanbooruSettings()
+                    {
+                        ApiKey = _danbooruConfiguration.ApiKey,
+                        Login = _danbooruConfiguration.Username,
+                        PauseBetweenRequestsInMs = _danbooruConfiguration.Delay
+                    })),
                 _httpClient),
             ImageSource.Pixiv => new PixivEngine(_pixivApiClient),
             _ => throw new ArgumentOutOfRangeException(nameof(imageSource), imageSource, null)
