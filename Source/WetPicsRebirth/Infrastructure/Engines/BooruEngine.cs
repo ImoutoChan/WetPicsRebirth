@@ -30,7 +30,7 @@ public class BooruEngine : IPopularListLoaderEngine
     {
         var post = await _loader.GetPostAsync(postHeader.Id);
         var mediaUrl = GetMediaUrl(post);
-
+        
         var response = await _httpClient.GetAsync(mediaUrl);
         response.EnsureSuccessStatusCode();
         var stream = await response.Content.ReadAsStreamAsync();
