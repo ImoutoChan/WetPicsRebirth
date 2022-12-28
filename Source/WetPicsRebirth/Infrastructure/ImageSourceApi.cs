@@ -9,6 +9,10 @@ namespace WetPicsRebirth.Infrastructure;
 
 public class ImageSourceApi : IImageSourceApi
 {
+    public ImageSourceApi()
+    {
+    }
+
     public Task FavoritePost(UserAccount account, int postId)
     {
         IBooruApiAccessor accessor = account switch
