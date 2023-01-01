@@ -6,7 +6,7 @@ namespace WetPicsRebirth.Commands.ServiceCommands.Posting;
 
 public record PostTop(TopType Type) : IRequest;
 
-public enum TopType { Weekly, Monthly }
+public enum TopType { Weekly, Monthly, Yearly }
 
 public class PostTopHandler : IRequestHandler<PostTop>
 {
@@ -27,7 +27,13 @@ public class PostTopHandler : IRequestHandler<PostTop>
     public async Task<Unit> Handle(PostTop command, CancellationToken __)
     {
         var topType = command.Type;
-        var forLastDays = topType == TopType.Weekly ? 7 : 30;
+        var forLastDays = topType switch
+        {
+            TopType.Weekly => 7,
+            TopType.Monthly => 30,
+            TopType.Yearly => 365,
+            _ => 7
+        };
         
         var scenes = await _scenesRepository.GetAll();
         
