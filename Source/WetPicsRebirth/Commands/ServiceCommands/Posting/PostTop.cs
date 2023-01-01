@@ -77,7 +77,13 @@ public class PostTopHandler : IRequestHandler<PostTop>
 
     private static string GetCaption(TopType topType, IReadOnlyCollection<PostedMedia> topMedia)
     {
-        var typeCaption = topType == TopType.Weekly ? "неделю" : "месяц";
+        var typeCaption = topType switch
+        {
+            TopType.Monthly => "месяц",
+            TopType.Weekly => "неделю",
+            TopType.Yearly => "год",
+            _ => throw new ArgumentOutOfRangeException(nameof(topType), topType, null)
+        };
         
         var mediaLinks = topMedia.Select((x, i) =>
             $"<a href=\"https://t.me/c/{x.ChatId.ToString().Replace("-100", "")}/{x.MessageId}\">{i + 1}.</a>" +
