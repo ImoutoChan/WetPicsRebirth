@@ -7,4 +7,6 @@ public class DanbooruConfiguration
     public string ApiKey { get; set; } = default!;
 
     public int Delay { get; set; } = 0;
+    
+    public string BotUserAgent { get; set; } = default!;
 }

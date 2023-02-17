@@ -40,7 +40,8 @@ public class EngineFactory : IEngineFactory
                     {
                         ApiKey = _danbooruConfiguration.ApiKey,
                         Login = _danbooruConfiguration.Username,
-                        PauseBetweenRequestsInMs = _danbooruConfiguration.Delay
+                        PauseBetweenRequestsInMs = _danbooruConfiguration.Delay,
+                        BotUserAgent = _danbooruConfiguration.BotUserAgent
                     })),
                 _httpClient),
             ImageSource.Pixiv => new PixivEngine(_pixivApiClient),
