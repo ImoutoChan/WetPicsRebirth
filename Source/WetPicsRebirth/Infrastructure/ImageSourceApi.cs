@@ -12,8 +12,8 @@ public class ImageSourceApi : IImageSourceApi
 {
     private readonly DanbooruConfiguration _danbooruConfiguration;
 
-    public ImageSourceApi(DanbooruConfiguration danbooruConfiguration) 
-        => _danbooruConfiguration = danbooruConfiguration;
+    public ImageSourceApi(IOptions<DanbooruConfiguration> danbooruConfiguration) 
+        => _danbooruConfiguration = danbooruConfiguration.Value;
 
     public Task FavoritePost(UserAccount account, int postId)
     {
