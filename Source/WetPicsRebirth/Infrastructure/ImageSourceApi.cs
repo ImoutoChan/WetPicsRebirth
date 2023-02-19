@@ -4,11 +4,17 @@ using Imouto.BooruParser.Implementations.Danbooru;
 using Imouto.BooruParser.Implementations.Yandere;
 using Microsoft.Extensions.Options;
 using WetPicsRebirth.Data.Entities;
+using WetPicsRebirth.Infrastructure.Engines;
 
 namespace WetPicsRebirth.Infrastructure;
 
 public class ImageSourceApi : IImageSourceApi
 {
+    private readonly DanbooruConfiguration _danbooruConfiguration;
+
+    public ImageSourceApi(DanbooruConfiguration danbooruConfiguration) 
+        => _danbooruConfiguration = danbooruConfiguration;
+
     public Task FavoritePost(UserAccount account, int postId)
     {
         IBooruApiAccessor accessor = account switch
@@ -20,7 +26,8 @@ public class ImageSourceApi : IImageSourceApi
                     {
                         ApiKey = account.ApiKey,
                         Login = account.Login,
-                        PauseBetweenRequestsInMs = 1000
+                        PauseBetweenRequestsInMs = 1000,
+                        BotUserAgent = _danbooruConfiguration.BotUserAgent
                     })),
             { Source: ImageSource.Yandere } => 
                 new YandereApiLoader(
