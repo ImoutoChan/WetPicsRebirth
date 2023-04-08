@@ -8,20 +8,36 @@ namespace WetPicsRebirth.Commands.ServiceCommands;
 public class CheckPostQueryHandler : IRequestHandler<CheckPostQuery, bool>
 {
     private readonly IModeratedPostsRepository _moderatedPostsRepository;
+    private readonly ILogger<CheckPostQueryHandler> _logger;
     private readonly ITelegramBotClient _telegramBotClient;
     private readonly ITelegramPreparer _telegramPreparer;
 
     public CheckPostQueryHandler(
         ITelegramBotClient telegramBotClient,
         ITelegramPreparer telegramPreparer,
-        IModeratedPostsRepository moderatedPostsRepository)
+        IModeratedPostsRepository moderatedPostsRepository,
+        ILogger<CheckPostQueryHandler> logger)
     {
         _telegramBotClient = telegramBotClient;
         _telegramPreparer = telegramPreparer;
         _moderatedPostsRepository = moderatedPostsRepository;
+        _logger = logger;
     }
 
     public async Task<bool> Handle(CheckPostQuery request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await HandleInternal(request, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            _logger.LogWarning(e, "Unable to send check for post {PostId}", request.Post.PostHeader.Id);
+            return false;
+        }
+    }
+
+    private async Task<bool> HandleInternal(CheckPostQuery request, CancellationToken cancellationToken)
     {
         var post = request.Post;
         var hash = post.PostHeader.Md5Hash ?? GetHash(post.File);
