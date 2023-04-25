@@ -36,7 +36,7 @@ public static class SerilogHostBuilderExtensions
                                 .WriteTo.Telegram(
                                     botToken, 
                                     botModerator.ToString(),
-                                    restrictedToMinimumLevel: LogEventLevel.Warning);
+                                    restrictedToMinimumLevel: LogEventLevel.Error);
 
                             SelfLog.Enable(Console.Error);
                             configureLogger?.Invoke(logger, configuration);
