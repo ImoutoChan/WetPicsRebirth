@@ -10,11 +10,13 @@ public class BooruEngine : IPopularListLoaderEngine
 {
     private readonly IBooruApiLoader _loader;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<BooruEngine> _logger;
 
-    public BooruEngine(IBooruApiLoader booruAsyncLoader, HttpClient httpClient)
+    public BooruEngine(IBooruApiLoader booruAsyncLoader, HttpClient httpClient, ILogger<BooruEngine> logger)
     {
         _loader = booruAsyncLoader;
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     public async Task<IReadOnlyCollection<PostHeader>> LoadPopularList(string options)
@@ -26,25 +28,40 @@ public class BooruEngine : IPopularListLoaderEngine
         return popular.Results.Select(x => new PostHeader(x.Id, x.Md5Hash)).ToList();
     }
 
-    public async Task<LoadedPost> LoadPost(PostHeader postHeader)
+    public Task<LoadedPost> LoadPost(PostHeader postHeader)
     {
-        var post = await _loader.GetPostAsync(postHeader.Id);
-        var mediaUrl = GetMediaUrl(post);
+        var postId = postHeader.Id;
+        var mediaUrl = string.Empty;
         
-        var response = await _httpClient.GetAsync(mediaUrl);
-        response.EnsureSuccessStatusCode();
-        var stream = await response.Content.ReadAsStreamAsync();
-        var length = response.Content.Headers.ContentLength;
-
-        if (!length.HasValue)
+        try
         {
-            throw new("Unexpected length");
+            return LoadPostCore();
         }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to load post {PostId} with media url {MediaUrl}", postId, mediaUrl);
+            throw;
+        }        
+        
+        async Task<LoadedPost> LoadPostCore()
+        {
+            var post = await _loader.GetPostAsync(postHeader.Id);
+            mediaUrl = GetMediaUrl(post);
 
-        var resultPost = new Post(postHeader, mediaUrl, stream, length.Value);
-        var requireModeration = CheckForModeration(post);
+            var response = await _httpClient.GetAsync(mediaUrl);
+            response.EnsureSuccessStatusCode();
 
-        return new(resultPost, requireModeration);
+            var stream = await response.Content.ReadAsStreamAsync();
+            var length = response.Content.Headers.ContentLength;
+
+            if (!length.HasValue)
+                throw new("Unexpected length");
+
+            var resultPost = new Post(postHeader, mediaUrl, stream, length.Value);
+            var requireModeration = CheckForModeration(post);
+
+            return new(resultPost, requireModeration);
+        }
     }
 
     private static string GetMediaUrl(Imouto.BooruParser.Post post)
