@@ -28,14 +28,14 @@ public class BooruEngine : IPopularListLoaderEngine
         return popular.Results.Select(x => new PostHeader(x.Id, x.Md5Hash)).ToList();
     }
 
-    public Task<LoadedPost> LoadPost(PostHeader postHeader)
+    public async Task<LoadedPost> LoadPost(PostHeader postHeader)
     {
         var postId = postHeader.Id;
         var mediaUrl = string.Empty;
         
         try
         {
-            return LoadPostCore();
+            return await LoadPostCore();
         }
         catch (Exception e)
         {
