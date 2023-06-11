@@ -6,6 +6,7 @@ using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Extensions;
@@ -36,7 +37,8 @@ public class PopularListLoaderTests
                     new(),
                     pixivOptions,
                     new PixivAuthorization(pixivOptions,
-                        new MemoryCache(Options.Create(new MemoryCacheOptions()))))),
+                        new MemoryCache(Options.Create(new MemoryCacheOptions())))),
+                new NullLoggerFactory()),
             new MemoryCache(Options.Create(new MemoryCacheOptions())));
     }
 

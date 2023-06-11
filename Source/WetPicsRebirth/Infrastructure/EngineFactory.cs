@@ -13,14 +13,17 @@ public class EngineFactory : IEngineFactory
     private readonly DanbooruConfiguration _danbooruConfiguration;
     private readonly HttpClient _httpClient;
     private readonly IPixivApiClient _pixivApiClient;
+    private readonly ILoggerFactory _loggerFactory;
 
     public EngineFactory(
         HttpClient httpClient,
         IOptions<DanbooruConfiguration> danbooruConfiguration,
-        IPixivApiClient pixivApiClient)
+        IPixivApiClient pixivApiClient,
+        ILoggerFactory loggerFactory)
     {
         _httpClient = httpClient;
         _pixivApiClient = pixivApiClient;
+        _loggerFactory = loggerFactory;
         _danbooruConfiguration = danbooruConfiguration.Value;
     }
 
@@ -32,7 +35,8 @@ public class EngineFactory : IEngineFactory
                 new YandereApiLoader(
                     new PerBaseUrlFlurlClientFactory(),
                     Options.Create(new YandereSettings())), 
-                _httpClient),
+                _httpClient,
+                _loggerFactory.CreateLogger<BooruEngine>()),
             ImageSource.Danbooru => new BooruEngine(
                 new DanbooruApiLoader(
                     new PerBaseUrlFlurlClientFactory(),
@@ -43,7 +47,8 @@ public class EngineFactory : IEngineFactory
                         PauseBetweenRequestsInMs = _danbooruConfiguration.Delay,
                         BotUserAgent = _danbooruConfiguration.BotUserAgent
                     })),
-                _httpClient),
+                _httpClient,
+                _loggerFactory.CreateLogger<BooruEngine>()),
             ImageSource.Pixiv => new PixivEngine(_pixivApiClient),
             _ => throw new ArgumentOutOfRangeException(nameof(imageSource), imageSource, null)
         };
