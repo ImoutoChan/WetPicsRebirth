@@ -37,6 +37,11 @@ public class BooruEngine : IPopularListLoaderEngine
         {
             return await LoadPostCore();
         }
+        catch (Exception e) when(string.IsNullOrWhiteSpace(mediaUrl))
+        {
+            _logger.LogWarning(e, "Failed to load post {PostId} with media url {MediaUrl}", postId, mediaUrl);
+            throw;
+        }        
         catch (Exception e)
         {
             _logger.LogError(e, "Failed to load post {PostId} with media url {MediaUrl}", postId, mediaUrl);
