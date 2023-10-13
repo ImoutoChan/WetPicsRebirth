@@ -12,28 +12,28 @@ jobs:
 
     steps:
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0
+        uses: GitTools/actions/gitversion/setup@a41619580c25efb59dfc062e92990914141abcad # v0.10.2
         with:
           versionSpec: '5.5.0'
       
       - name: Set up Docker Buildx
         id:   buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
           
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.1.0
         with:
           fetch-depth: 0
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d v3.0.0
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Run GitVersion
         id:   gitversion
-        uses: gittools/actions/gitversion/execute@v0
+        uses: GitTools/actions/gitversion/execute@a41619580c25efb59dfc062e92990914141abcad # v0.10.2
         env:
           DOTNET_ROLL_FORWARD: Major
 
@@ -41,7 +41,7 @@ jobs:
         run: echo ${{ steps.gitversion.outputs.majorMinorPatch }}
 
       - name: Build image and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
         with:
           context: ./Source
           file: ./Source/WetPicsRebirth/Dockerfile
@@ -54,7 +54,7 @@ jobs:
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/wetpicsrebirth:buildcache,mode=max
           
       - name: Deploy
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@55dabf81b49d4120609345970c91507e2d734799 # v1.0.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
