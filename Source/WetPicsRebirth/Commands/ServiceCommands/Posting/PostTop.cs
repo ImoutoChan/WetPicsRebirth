@@ -24,7 +24,7 @@ public class PostTopHandler : IRequestHandler<PostTop>
         _votesRepository = votesRepository;
     }
 
-    public async Task<Unit> Handle(PostTop command, CancellationToken __)
+    public async Task Handle(PostTop command, CancellationToken __)
     {
         var topType = command.Type;
         var forLastDays = topType switch
@@ -44,8 +44,6 @@ public class PostTopHandler : IRequestHandler<PostTop>
             if (posts.Count > 0)
                 await PostTopForScene(topType, scene, posts);
         }
-        
-        return Unit.Value;
     }
 
     private async Task PostTopForScene(TopType topType, Scene scene, IReadOnlyCollection<PostedMedia> postedMedia)
@@ -93,10 +91,10 @@ public class PostTopHandler : IRequestHandler<PostTop>
         return caption;
     }
 
-    private static InputMediaBase CreateMedia(MediaType fileType, string fileId)
+    private static InputMedia CreateMedia(MediaType fileType, string fileId)
         => fileType == MediaType.Photo
-            ? new InputMediaPhoto(fileId)
-            : new InputMediaVideo(fileId);
+            ? new InputMediaPhoto(new InputFileId(fileId))
+            : new InputMediaVideo(new InputFileId(fileId));
 
     private static string GetLinkToPost(ImageSource source, int postId)
     {

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.InputFiles;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.Exceptions;
@@ -54,7 +53,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
         _accessLink = configuration.GetRequiredValue<string>("AccessLink");
     }
 
-    public async Task<Unit> Handle(PostNext request, CancellationToken cancellationToken)
+    public async Task Handle(PostNext request, CancellationToken cancellationToken)
     {
         var readyScenes = await _scenesRepository.GetEnabledAndReady();
 
@@ -67,8 +66,6 @@ public class PostNextHandler : IRequestHandler<PostNext>
 
             await PostNextForScene(scene, actresses);
         }
-
-        return Unit.Value;
     }
 
     private async Task PostNextForScene(Scene scene, IReadOnlyCollection<Actress> actresses)
@@ -180,10 +177,10 @@ public class PostNextHandler : IRequestHandler<PostNext>
         await using var file = _telegramPreparer.Prepare(post.File, post.FileSize);
 
         var sentPost = await _telegramBotClient.SendPhotoAsync(
-            actress.ChatId,
-            new InputOnlineFile(file),
-            caption,
-            ParseMode.Html,
+            chatId: actress.ChatId,
+            photo: new InputFileStream(file),
+            caption: caption,
+            parseMode: ParseMode.Html,
             replyMarkup: Keyboards.WithLikes(0));
 
         var fileId = sentPost.Photo!
@@ -199,7 +196,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
     {
         var sentPost = await _telegramBotClient.SendVideoAsync(
             actress.ChatId,
-            new InputOnlineFile(post.File),
+            new InputFileStream(post.File),
             caption: caption,
             parseMode: ParseMode.Html,
             replyMarkup: Keyboards.WithLikes(0));

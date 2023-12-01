@@ -82,7 +82,7 @@ public class Startup
         services.AddSingleton<ILikesToFavoritesTranslatorScheduler, LikesToFavoritesTranslatorScheduler>();
 
         // mediator
-        services.AddMediatR(typeof(Startup));
+        services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<Startup>());
         var handlers = GetType().Assembly
             .GetTypes()
             .Where(x => x.IsAssignableTo(typeof(MessageHandler)))
@@ -100,8 +100,6 @@ public class Startup
         // quartz
         services.AddQuartz(c =>
         {
-            c.UseMicrosoftDependencyInjectionJobFactory();
-            
             c.AddJob<PostingJob>(j => j.WithIdentity(nameof(PostingJob)));
             c.AddTrigger(t => t
                 .ForJob(nameof(PostingJob))

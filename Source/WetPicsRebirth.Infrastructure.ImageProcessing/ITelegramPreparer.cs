@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace WetPicsRebirth.Infrastructure.ImageProcessing;
+﻿namespace WetPicsRebirth.Infrastructure.ImageProcessing;
 
 public interface ITelegramPreparer
 {

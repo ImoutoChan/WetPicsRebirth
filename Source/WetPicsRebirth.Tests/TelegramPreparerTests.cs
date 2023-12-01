@@ -1,5 +1,3 @@
-using System.IO;
-using System.Threading.Tasks;
 using WetPicsRebirth.Infrastructure.ImageProcessing;
 using Xunit;
 

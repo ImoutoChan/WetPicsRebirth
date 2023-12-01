@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using NetVips;
+﻿using NetVips;
 
 namespace WetPicsRebirth.Infrastructure.ImageProcessing;
 

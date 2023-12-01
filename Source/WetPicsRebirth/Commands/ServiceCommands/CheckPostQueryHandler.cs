@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using Telegram.Bot.Types;
 using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.Infrastructure.ImageProcessing;
 using WetPicsRebirth.Services;
@@ -50,10 +51,10 @@ public class CheckPostQueryHandler : IRequestHandler<CheckPostQuery, bool>
         var file = _telegramPreparer.Prepare(post.File, post.FileSize);
 
         var sentPost = await _telegramBotClient.SendPhotoAsync(
-            request.ModeratorId,
-            new(file),
-            post.PostHtmlCaption,
-            ParseMode.Html,
+            chatId: request.ModeratorId,
+            photo: new InputFileStream(file),
+            caption: post.PostHtmlCaption,
+            parseMode: ParseMode.Html,
             replyMarkup: Keyboards.WithModeration,
             cancellationToken: cancellationToken);
 
