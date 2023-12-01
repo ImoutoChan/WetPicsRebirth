@@ -22,7 +22,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__WetPicsRebirthOnPostgres=Server=postgresserver;Port=5432;Database=WetPicsRebirth;User Id=postgres;Password=pass
     ports:
-      - "4430:80"
+      - "4430:8080"
       
 
 networks:
