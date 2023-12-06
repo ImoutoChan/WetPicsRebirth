@@ -1,5 +1,7 @@
 ﻿using Flurl.Http.Configuration;
 using Imouto.BooruParser.Implementations.Danbooru;
+using Imouto.BooruParser.Implementations.Gelbooru;
+using Imouto.BooruParser.Implementations.Rule34;
 using Imouto.BooruParser.Implementations.Yandere;
 using Microsoft.Extensions.Options;
 using WetPicsRebirth.Data.Entities;
@@ -46,6 +48,24 @@ public class EngineFactory : IEngineFactory
                         Login = _danbooruConfiguration.Username,
                         PauseBetweenRequestsInMs = _danbooruConfiguration.Delay,
                         BotUserAgent = _danbooruConfiguration.BotUserAgent
+                    })),
+                _httpClient,
+                _loggerFactory.CreateLogger<BooruEngine>()),
+            ImageSource.Rule34 => new BooruEngine(
+                new Rule34ApiLoader(
+                    new PerBaseUrlFlurlClientFactory(),
+                    Options.Create(new Rule34Settings()
+                    {
+                        PauseBetweenRequestsInMs = 1,
+                    })),
+                _httpClient,
+                _loggerFactory.CreateLogger<BooruEngine>()),
+            ImageSource.Gelbooru => new BooruEngine(
+                new GelbooruApiLoader(
+                    new PerBaseUrlFlurlClientFactory(),
+                    Options.Create(new GelbooruSettings()
+                    {
+                        PauseBetweenRequestsInMs = 1,
                     })),
                 _httpClient,
                 _loggerFactory.CreateLogger<BooruEngine>()),

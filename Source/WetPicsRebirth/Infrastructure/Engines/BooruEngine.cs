@@ -74,12 +74,16 @@ public class BooruEngine : IPopularListLoaderEngine
 
     public string CreateCaption(ImageSource source, string options, Post post)
     {
-        var type = GetPopularType(options).MakeAdverb().ToLower();
+        var type = options == string.Empty 
+            ? "selected" 
+            : GetPopularType(options).MakeAdverb().ToLower();
 
         return source switch
         {
             ImageSource.Danbooru => $"<a href=\"https://danbooru.donmai.us/posts/{post.PostHeader.Id}\">danbooru {type}</a>",
             ImageSource.Yandere => $"<a href=\"https://yande.re/post/show/{post.PostHeader.Id}\">yandere {type}</a>",
+            ImageSource.Rule34 => $"<a href=\"https://rule34.xxx/index.php?page=post&s=view&id={post.PostHeader.Id}\">rule34 {type}</a>",
+            ImageSource.Gelbooru => $"<a href=\"https://gelbooru.com/index.php?page=post&s=view&id={post.PostHeader.Id}\">gelbooru {type}</a>",
             _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
         };
     }

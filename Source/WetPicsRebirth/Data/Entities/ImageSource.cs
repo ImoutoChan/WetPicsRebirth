@@ -4,5 +4,7 @@ public enum ImageSource
 {
     Pixiv,
     Danbooru,
-    Yandere
+    Yandere,
+    Rule34,
+    Gelbooru
 }
