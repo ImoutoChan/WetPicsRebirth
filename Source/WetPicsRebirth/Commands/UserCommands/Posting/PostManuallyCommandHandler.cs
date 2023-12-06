@@ -128,7 +128,7 @@ public class PostManuallyCommandHandler : MessageHandler
         {
             await _telegramBotClient.SendTextMessageAsync(
                 message.Chat.Id,
-                "Не удалось отправить пост: " + e.Message,
+                "Не удалось отправить пост: " + e.Message + e.StackTrace + e.InnerException?.Message + e.InnerException?.StackTrace,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
         }
