@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Infrastructure.Engines;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv;
+using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace WetPicsRebirth.Infrastructure;
 
@@ -16,21 +17,27 @@ public class EngineFactory : IEngineFactory
     private readonly HttpClient _httpClient;
     private readonly IPixivApiClient _pixivApiClient;
     private readonly ILoggerFactory _loggerFactory;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public EngineFactory(
         HttpClient httpClient,
         IOptions<DanbooruConfiguration> danbooruConfiguration,
         IPixivApiClient pixivApiClient,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        IHttpClientFactory httpClientFactory)
     {
         _httpClient = httpClient;
         _pixivApiClient = pixivApiClient;
         _loggerFactory = loggerFactory;
+        _httpClientFactory = httpClientFactory;
         _danbooruConfiguration = danbooruConfiguration.Value;
     }
 
     public IPopularListLoaderEngine Get(ImageSource imageSource)
     {
+        var danbooruHttpClient = _httpClientFactory.CreateClient();
+        danbooruHttpClient.DefaultRequestHeaders.Add("User-Agent", _danbooruConfiguration.BotUserAgent);
+        
         return imageSource switch
         {
             ImageSource.Yandere => new BooruEngine(
@@ -39,7 +46,7 @@ public class EngineFactory : IEngineFactory
                     Options.Create(new YandereSettings())), 
                 _httpClient,
                 _loggerFactory.CreateLogger<BooruEngine>()),
-            ImageSource.Danbooru => new BooruEngine(
+            ImageSource.Danbooru => new FallbackToGelbooruDanbooruEngine(
                 new DanbooruApiLoader(
                     new PerBaseUrlFlurlClientFactory(),
                     Options.Create(new DanbooruSettings()
@@ -49,8 +56,14 @@ public class EngineFactory : IEngineFactory
                         PauseBetweenRequestsInMs = _danbooruConfiguration.Delay,
                         BotUserAgent = _danbooruConfiguration.BotUserAgent
                     })),
-                _httpClient,
-                _loggerFactory.CreateLogger<BooruEngine>()),
+                new GelbooruApiLoader(
+                    new PerBaseUrlFlurlClientFactory(),
+                    Options.Create(new GelbooruSettings()
+                    {
+                        PauseBetweenRequestsInMs = _danbooruConfiguration.Delay,
+                    })),
+                danbooruHttpClient,
+                _loggerFactory.CreateLogger<FallbackToGelbooruDanbooruEngine>()),
             ImageSource.Rule34 => new BooruEngine(
                 new Rule34ApiLoader(
                     new PerBaseUrlFlurlClientFactory(),
