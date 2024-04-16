@@ -12,6 +12,7 @@ using WetPicsRebirth.Infrastructure.Engines;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv;
 using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
 using Xunit;
+using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace WetPicsRebirth.Tests;
 
@@ -37,7 +38,8 @@ public class PopularListLoaderTests
                     pixivOptions,
                     new PixivAuthorization(pixivOptions,
                         new MemoryCache(Options.Create(new MemoryCacheOptions())))),
-                new NullLoggerFactory()),
+                new NullLoggerFactory(),
+                new DefaultHttpClientFactory()),
             new MemoryCache(Options.Create(new MemoryCacheOptions())));
     }
 
@@ -156,3 +158,5 @@ public class PopularListLoaderTests
         post.RequireModeration.Should().BeTrue();
     }
 }
+
+file class DefaultHttpClientFactory : IHttpClientFactory { public HttpClient CreateClient(string name) => new(); } 
