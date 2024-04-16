@@ -9,6 +9,8 @@ public record Post(PostHeader PostHeader, string Url, Stream File, long FileSize
             ? MediaType.Video
             : MediaType.Photo;
 
+    public string FileName => Path.GetFileName(Url);
+
     public virtual string PostHtmlCaption => Url.Contains("yande.re")
         ? $"<a href=\"https://yande.re/post/show/{PostHeader.Id}\">yande.re</a>"
         : $"<a href=\"https://danbooru.donmai.us/posts/{PostHeader.Id}\">danbooru.donmai.us</a>";

@@ -196,7 +196,7 @@ public class PostManuallyCommandHandler : MessageHandler
 
         var sentPost = await _telegramBotClient.SendPhotoAsync(
             chatId: chatId,
-            photo: new InputFileStream(file),
+            photo: InputFile.FromStream(file, post.FileName),
             caption: caption,
             parseMode: ParseMode.Html,
             replyMarkup: Keyboards.WithLikes(0));
@@ -214,7 +214,7 @@ public class PostManuallyCommandHandler : MessageHandler
     {
         var sentPost = await _telegramBotClient.SendVideoAsync(
             chatId,
-            new InputFileStream(post.File),
+            InputFile.FromStream(post.File, post.FileName),
             caption: caption,
             parseMode: ParseMode.Html,
             replyMarkup: Keyboards.WithLikes(0));

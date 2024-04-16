@@ -178,7 +178,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
 
         var sentPost = await _telegramBotClient.SendPhotoAsync(
             chatId: actress.ChatId,
-            photo: new InputFileStream(file),
+            photo: InputFile.FromStream(file, post.FileName),
             caption: caption,
             parseMode: ParseMode.Html,
             replyMarkup: Keyboards.WithLikes(0));
@@ -196,7 +196,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
     {
         var sentPost = await _telegramBotClient.SendVideoAsync(
             actress.ChatId,
-            new InputFileStream(post.File),
+            InputFile.FromStream(post.File, post.FileName),
             caption: caption,
             parseMode: ParseMode.Html,
             replyMarkup: Keyboards.WithLikes(0));

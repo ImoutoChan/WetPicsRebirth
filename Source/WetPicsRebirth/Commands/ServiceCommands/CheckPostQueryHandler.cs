@@ -52,7 +52,7 @@ public class CheckPostQueryHandler : IRequestHandler<CheckPostQuery, bool>
 
         var sentPost = await _telegramBotClient.SendPhotoAsync(
             chatId: request.ModeratorId,
-            photo: new InputFileStream(file),
+            photo: InputFile.FromStream(file, post.FileName),
             caption: post.PostHtmlCaption,
             parseMode: ParseMode.Html,
             replyMarkup: Keyboards.WithModeration,
