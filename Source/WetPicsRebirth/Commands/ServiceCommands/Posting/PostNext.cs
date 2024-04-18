@@ -149,7 +149,8 @@ public class PostNextHandler : IRequestHandler<PostNext>
         await post.File.DisposeAsync();
     }
 
-    private static bool ShouldSkip(LoadedPost loadedPost) => loadedPost.Post.FileSize > 50_000_000;
+    private static bool ShouldSkip(LoadedPost loadedPost)
+        => loadedPost.Post.FileSize > 50_000_000 || loadedPost.Post.FileName.EndsWith(".webm");
 
     private async Task<(Message sentPost, string fileId, MediaType fileType)> SentPostToTelegram(
         Actress actress,
