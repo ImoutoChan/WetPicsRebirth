@@ -125,7 +125,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
             }
         }
 
-        if (loadedPost.Post.FileSize > 50_000_000)
+        if (ShouldSkip(loadedPost))
         {
             var newSkipIds = skipIds.Append(loadedPost.Post.PostHeader.Id).ToArray();
             await PostNextForActress(actress, newSkipIds);
@@ -148,6 +148,8 @@ public class PostNextHandler : IRequestHandler<PostNext>
 
         await post.File.DisposeAsync();
     }
+
+    private static bool ShouldSkip(LoadedPost loadedPost) => loadedPost.Post.FileSize > 50_000_000;
 
     private async Task<(Message sentPost, string fileId, MediaType fileType)> SentPostToTelegram(
         Actress actress,

@@ -70,7 +70,10 @@ public class BooruEngine : IPopularListLoaderEngine
     }
 
     private static string GetMediaUrl(Imouto.BooruParser.Post post)
-        => post.OriginalUrl?.EndsWith(".zip") == true ? post.SampleUrl! : post.OriginalUrl!;
+        => post.OriginalUrl?.EndsWith(".zip") == true
+            || post.OriginalUrl?.EndsWith(".webm") == true
+            ? post.SampleUrl! 
+            : post.OriginalUrl!;
 
     public string CreateCaption(ImageSource source, string options, Post post)
     {
