@@ -76,7 +76,9 @@ public class FallbackToGelbooruDanbooruEngine : BooruEngine
             if (!length.HasValue)
                 throw new("Unexpected length");
 
-            var resultPost = new Post(postHeader, mediaUrl, stream, length.Value);
+            var artist = post.Tags.FirstOrDefault(x => x.Type == "artist")?.Name;
+
+            var resultPost = new Post(postHeader, mediaUrl, stream, length.Value, artist);
             var requireModeration = CheckForModeration(post);
 
             return new(resultPost, requireModeration);

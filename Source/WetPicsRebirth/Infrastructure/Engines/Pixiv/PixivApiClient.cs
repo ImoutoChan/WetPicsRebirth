@@ -51,7 +51,7 @@ public class PixivApiClient : IPixivApiClient
                 x.Tags
                     ?.Where(y => y.TranslatedName != null)
                     .Select(y => y.TranslatedName!)
-                    .ToArray() ?? Array.Empty<string>()))
+                    .ToArray() ?? []))
             .ToList();
     }
 

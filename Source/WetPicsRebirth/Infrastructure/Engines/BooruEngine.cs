@@ -62,7 +62,9 @@ public class BooruEngine : IPopularListLoaderEngine
             if (!length.HasValue)
                 throw new("Unexpected length");
 
-            var resultPost = new Post(postHeader, mediaUrl, stream, length.Value);
+            var author = post.Tags.Where(x => x.Type == "artist").Select(x => x.Name).FirstOrDefault();
+            
+            var resultPost = new Post(postHeader, mediaUrl, stream, length.Value, author);
             var requireModeration = CheckForModeration(post);
 
             return new(resultPost, requireModeration);
@@ -70,12 +72,43 @@ public class BooruEngine : IPopularListLoaderEngine
     }
 
     private static string GetMediaUrl(Imouto.BooruParser.Post post)
-        => post.OriginalUrl?.EndsWith(".zip") == true
-            || post.OriginalUrl?.EndsWith(".webm") == true
-            ? post.SampleUrl! 
-            : post.OriginalUrl!;
+    {
+        if (post.OriginalUrl?.EndsWith(".zip") == true || post.OriginalUrl?.EndsWith(".webm") == true)
+        {
+            if (post.SampleUrl?.EndsWith(".webm") != true)
+            {
+                return post.SampleUrl!;
+            }
+            else if (post.PreviewUrl != null)
+            {
+                return post.PreviewUrl!;
+            }
+        }
+
+        return post.OriginalUrl!;
+    }
 
     public string CreateCaption(ImageSource source, string options, Post post)
+    {
+        var type = options == string.Empty 
+            ? "selected" 
+            : GetPopularType(options).MakeAdverb().ToLower();
+
+        var postAuthor = post.Author is not null 
+            ? $"{post.Author}" 
+            : null;
+        
+        return source switch
+        {
+            ImageSource.Danbooru => $"<a href=\"https://danbooru.donmai.us/posts/{post.PostHeader.Id}\">{postAuthor ?? $"danbooru {type}"}</a>",
+            ImageSource.Yandere => $"<a href=\"https://yande.re/post/show/{post.PostHeader.Id}\">{postAuthor ?? $"yandere {type}"}</a>",
+            ImageSource.Rule34 => $"<a href=\"https://rule34.xxx/index.php?page=post&s=view&id={post.PostHeader.Id}\">{postAuthor ?? $"rule34 {type}"}</a>",
+            ImageSource.Gelbooru => $"<a href=\"https://gelbooru.com/index.php?page=post&s=view&id={post.PostHeader.Id}\">{postAuthor ?? $"gelbooru {type}"}</a>",
+            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+        };
+    }
+
+    public string CreateCaptionObsolete(ImageSource source, string options, Post post)
     {
         var type = options == string.Empty 
             ? "selected" 
