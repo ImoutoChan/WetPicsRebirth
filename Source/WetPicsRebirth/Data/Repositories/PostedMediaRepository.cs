@@ -8,10 +8,7 @@ public class PostedMediaRepository : IPostedMediaRepository
 {
     private readonly WetPicsRebirthDbContext _context;
 
-    public PostedMediaRepository(WetPicsRebirthDbContext context)
-    {
-        _context = context;
-    }
+    public PostedMediaRepository(WetPicsRebirthDbContext context) => _context = context;
 
     public async Task<int?> GetFirstNew(
         long chatId,
@@ -28,7 +25,7 @@ public class PostedMediaRepository : IPostedMediaRepository
             .ToListAsync();
 
         var alreadyPostedHashes = await _context.PostedMedia
-            .Where(x => x.ChatId == chatId && x.ImageSource == imageSource)
+            .Where(x => x.ChatId == chatId)
             .Select(x => x.PostHash)
             .Where(x => hashes.Contains(x))
             .ToListAsync();
