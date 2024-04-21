@@ -95,7 +95,7 @@ public class BooruEngine : IPopularListLoaderEngine
             : GetPopularType(options).MakeAdverb().ToLower();
 
         var postAuthor = post.Author is not null 
-            ? $"{post.Author}" 
+            ? $"{post.Author.Replace("_", " ")}" 
             : null;
         
         return source switch
