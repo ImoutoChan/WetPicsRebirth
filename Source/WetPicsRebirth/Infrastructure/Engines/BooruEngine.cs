@@ -1,4 +1,5 @@
-﻿using Imouto.BooruParser;
+﻿using System.IO.Compression;
+using Imouto.BooruParser;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Infrastructure.Models;
@@ -53,22 +54,55 @@ public class BooruEngine : IPopularListLoaderEngine
             var post = await _loader.GetPostAsync(postHeader.Id);
             mediaUrl = GetMediaUrl(post);
 
-            var response = await _httpClient.GetAsync(mediaUrl);
-            response.EnsureSuccessStatusCode();
-
-            var stream = await response.Content.ReadAsStreamAsync();
-            var length = response.Content.Headers.ContentLength;
-
-            if (!length.HasValue)
-                throw new("Unexpected length");
+            var loaded = IsUgoira(post) 
+                ? await LoadPostFromUgoira(post.OriginalUrl!) 
+                : await LoadRegularPost(mediaUrl);
 
             var author = post.Tags.Where(x => x.Type == "artist").Select(x => x.Name).FirstOrDefault();
             
-            var resultPost = new Post(postHeader, mediaUrl, stream, length.Value, author);
+            var resultPost = new Post(postHeader, mediaUrl, loaded.Stream, loaded.Length, author);
             var requireModeration = CheckForModeration(post);
 
             return new(resultPost, requireModeration);
         }
+    }
+
+    private static bool IsUgoira(Imouto.BooruParser.Post post)
+        => post.OriginalUrl?.EndsWith(".zip") == true;
+    
+    private async Task<(Stream Stream, long Length)> LoadRegularPost(string mediaUrl)
+    {
+        var response = await _httpClient.GetAsync(mediaUrl);
+        response.EnsureSuccessStatusCode();
+
+        var stream = await response.Content.ReadAsStreamAsync();
+        var length = response.Content.Headers.ContentLength;
+
+        if (!length.HasValue)
+            throw new("Unexpected length");
+
+        return (stream, length.Value);
+    }
+
+    private async Task<(Stream Stream, long Length)> LoadPostFromUgoira(string mediaUrl)
+    {
+        var response = await _httpClient.GetAsync(mediaUrl);
+        response.EnsureSuccessStatusCode();
+
+        var stream = await response.Content.ReadAsStreamAsync();
+
+        using var ugoira = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: false);
+        var firstImage = ugoira.Entries.MinBy(x => x.Name);
+        
+        if (firstImage == null)
+            throw new("No images in ugoira");
+
+        var ms = new MemoryStream();
+        await using var imageStream = firstImage.Open();
+        await imageStream.CopyToAsync(ms);
+        ms.Seek(0, SeekOrigin.Begin);
+
+        return (ms, ms.Length);
     }
 
     private static string GetMediaUrl(Imouto.BooruParser.Post post)
