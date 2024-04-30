@@ -3,7 +3,6 @@ using Quartz;
 using WetPicsRebirth.Data;
 using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Services;
-using WetPicsRebirth.Services.UserAccounts;
 
 namespace WetPicsRebirth;
 
@@ -36,7 +35,6 @@ public static class Program
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
             .ConfigureSerilog()
             .ConfigureServices(x => x.AddHostedService<TelegramHostedService>())
-            .ConfigureServices(x => x.AddHostedService<LikesToFavoritesTranslatorHostedService>())
             .ConfigureServices(x => x.AddQuartzHostedService());
 
 

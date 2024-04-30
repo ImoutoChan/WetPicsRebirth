@@ -18,6 +18,7 @@ using WetPicsRebirth.Infrastructure.Engines.Pixiv.Models;
 using WetPicsRebirth.Infrastructure.ImageProcessing;
 using WetPicsRebirth.Jobs;
 using WetPicsRebirth.Services;
+using WetPicsRebirth.Services.LikesCounterUpdater;
 using WetPicsRebirth.Services.UserAccounts;
 
 namespace WetPicsRebirth;
@@ -65,7 +66,6 @@ public class Startup
         services.AddTransient<IUsersRepository, UsersRepository>();
         services.AddTransient<IModeratedPostsRepository, ModeratedPostsRepository>();
         services.AddTransient<IUserAccountsRepository, CachedUserAccountsRepository>();
-        services.AddTransient<ILikesToFavoritesTranslator, LikesToFavoritesTranslator>();
         services.AddTransient<UserAccountsRepository, UserAccountsRepository>();
 
         services.AddTransient<IPopularListLoader, PopularListLoader>();
@@ -79,8 +79,9 @@ public class Startup
         services.AddTransient<IPixivAuthorization, PixivAuthorization>();
         services.AddImageProcessing();
 
-        services.AddSingleton<ILikesToFavoritesTranslatorScheduler, LikesToFavoritesTranslatorScheduler>();
-
+        services.AddLikesToFavoritesOffload();
+        services.AddLikesCounterUpdaterOffload();
+        
         // mediator
         services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<Startup>());
         var handlers = GetType().Assembly
