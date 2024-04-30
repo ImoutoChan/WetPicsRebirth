@@ -9,7 +9,7 @@ internal class OffloadHostedService<T> : IHostedService
     private readonly IOptions<OffloadOptions<T>> _options;
     private readonly ILogger<OffloadHostedService<T>> _logger;
 
-    protected OffloadHostedService(
+    public OffloadHostedService(
         IOffloadReader<T> offload,
         IServiceProvider serviceProvider,
         IOptions<OffloadOptions<T>> options,
