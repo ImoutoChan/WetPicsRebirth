@@ -1,10 +1,10 @@
-﻿using WetPicsRebirth.Commands.UserCommands.Abstract;
+﻿using Offloader;
+using WetPicsRebirth.Commands.UserCommands.Abstract;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories.Abstract;
 using WetPicsRebirth.EntryPoint.Service.Notifications;
 using WetPicsRebirth.Extensions;
 using WetPicsRebirth.Services.LikesCounterUpdater;
-using WetPicsRebirth.Services.Offload;
 
 namespace WetPicsRebirth.Commands.UserCommands;
 
@@ -64,7 +64,7 @@ public class LikeCallbackHandler : ICallbackHandler
         if (counts <= 0)
             return;
 
-        await _likesToFavorites.Offload(vote);
-        await _likesCounterUpdater.Offload(new(chatId, messageId));
+        await _likesToFavorites.OffloadAsync(vote);
+        await _likesCounterUpdater.OffloadAsync(new(chatId, messageId));
     }
 }
