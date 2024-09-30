@@ -72,16 +72,24 @@ public class BooruEngine : IPopularListLoaderEngine
     
     private async Task<(Stream Stream, long Length)> LoadRegularPost(string mediaUrl)
     {
-        var response = await _httpClient.GetAsync(mediaUrl);
-        response.EnsureSuccessStatusCode();
+        try
+        {
+            var response = await _httpClient.GetAsync(mediaUrl);
+            response.EnsureSuccessStatusCode();
 
-        var stream = await response.Content.ReadAsStreamAsync();
-        var length = response.Content.Headers.ContentLength;
+            var stream = await response.Content.ReadAsStreamAsync();
+            var length = response.Content.Headers.ContentLength;
 
-        if (!length.HasValue)
-            throw new("Unexpected length");
+            if (!length.HasValue)
+                throw new("Unexpected length");
 
-        return (stream, length.Value);
+            return (stream, length.Value);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to load media from {MediaUrl}", mediaUrl);
+            throw;
+        }
     }
 
     private async Task<(Stream Stream, long Length)> LoadPostFromUgoira(string mediaUrl)
