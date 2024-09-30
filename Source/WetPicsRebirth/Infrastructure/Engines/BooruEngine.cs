@@ -87,7 +87,7 @@ public class BooruEngine : IPopularListLoaderEngine
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Failed to load media from {MediaUrl} ({Md5}) ", mediaUrl, post.Id.Md5Hash);
+            _logger.LogError(e, "Failed to load media from {MediaUrl} ({Id} {Md5}) ", mediaUrl, post.Id.Id, post.Id.Md5Hash);
             throw;
         }
     }
