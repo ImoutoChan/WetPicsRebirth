@@ -56,7 +56,7 @@ public class BooruEngine : IPopularListLoaderEngine
 
             var loaded = IsUgoira(post) 
                 ? await LoadPostFromUgoira(post.OriginalUrl!) 
-                : await LoadRegularPost(mediaUrl);
+                : await LoadRegularPost(mediaUrl, post);
 
             var author = post.Tags.Where(x => x.Type == "artist").Select(x => x.Name).FirstOrDefault();
             
@@ -70,7 +70,7 @@ public class BooruEngine : IPopularListLoaderEngine
     private static bool IsUgoira(Imouto.BooruParser.Post post)
         => post.OriginalUrl?.EndsWith(".zip") == true;
     
-    private async Task<(Stream Stream, long Length)> LoadRegularPost(string mediaUrl)
+    private async Task<(Stream Stream, long Length)> LoadRegularPost(string mediaUrl, Imouto.BooruParser.Post post)
     {
         try
         {
@@ -87,7 +87,7 @@ public class BooruEngine : IPopularListLoaderEngine
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Failed to load media from {MediaUrl}", mediaUrl);
+            _logger.LogError(e, "Failed to load media from {MediaUrl} ({Md5}) ", mediaUrl, post.Id.Md5Hash);
             throw;
         }
     }
