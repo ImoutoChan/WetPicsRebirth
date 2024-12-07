@@ -31,37 +31,37 @@ public class RemoveActressCommandHandler : MessageHandler
     protected override bool WantHandle(Message message, string? command)
         => command?.StartsWith("/removeactress") ?? false;
 
-    protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
+    protected override async Task Handle(Message message, string? command, CancellationToken ct)
     {
         var parameters = message.Text?.Split(' ') ?? Array.Empty<string>();
 
         if (parameters.Length != 1)
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Команда должна выглядеть как /removeactress_6B29FC40CA471067B31D00DD010662DA, " +
                 "где первый параметр это айди актрисы",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (parameters[0].Length < 33 || !Guid.TryParse(parameters[0][^32..], out var actressId))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Неверный айди актрисы",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         await _actressesRepository.Remove(actressId);
 
-        await _telegramBotClient.SendTextMessageAsync(
+        await _telegramBotClient.SendMessage(
             message.Chat.Id,
             "Вы уволили актрису, что поделать..",
-            replyToMessageId: message.MessageId,
-            cancellationToken: cancellationToken);
+            replyParameters: message.MessageId,
+            cancellationToken: ct);
     }
 }

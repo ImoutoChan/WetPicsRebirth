@@ -18,17 +18,17 @@ public class HelpCommandHandler : MessageHandler
     }
 
     public override IEnumerable<string> ProvidedCommands
-        => new[] { "/help", "/start" };
+        => ["/help", "/start"];
 
     protected override bool WantHandle(Message message, string? command)
         => command is "/help" or "/start";
 
-    protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
+    protected override async Task Handle(Message message, string? command, CancellationToken ct)
     {
-        await _telegramBotClient.SendTextMessageAsync(
+        await _telegramBotClient.SendMessage(
             message.Chat.Id,
             "Girls are getting ready, please kindly wait",
-            replyToMessageId: message.MessageId,
-            cancellationToken: cancellationToken);
+            replyParameters: message.MessageId,
+            cancellationToken: ct);
     }
 }

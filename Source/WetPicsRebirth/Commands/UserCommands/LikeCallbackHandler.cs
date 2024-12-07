@@ -56,7 +56,7 @@ public class LikeCallbackHandler : ICallbackHandler
         await _usersRepository.AddOrUpdate(user);
         var counts = await _votesRepository.AddOrIgnore(vote);
 
-        await _telegramBotClient.AnswerCallbackQueryAsync(
+        await _telegramBotClient.AnswerCallbackQuery(
             notification.CallbackQuery.Id, 
             cancellationToken: token)
             .TryRun(_logger);

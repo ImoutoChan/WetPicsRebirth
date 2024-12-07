@@ -181,7 +181,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
     {
         await using var file = _telegramPreparer.Prepare(post.File, post.FileSize);
 
-        var sentPost = await _telegramBotClient.SendPhotoAsync(
+        var sentPost = await _telegramBotClient.SendPhoto(
             chatId: actress.ChatId,
             photo: InputFile.FromStream(file, post.FileName),
             caption: caption,
@@ -199,7 +199,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
 
     private async Task<(Message sentPost, string fileId)> SendVideo(Actress actress, Post post, string caption)
     {
-        var sentPost = await _telegramBotClient.SendVideoAsync(
+        var sentPost = await _telegramBotClient.SendVideo(
             actress.ChatId,
             InputFile.FromStream(post.File, post.FileName),
             caption: caption,

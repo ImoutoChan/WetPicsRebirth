@@ -27,17 +27,17 @@ public abstract class MessageHandler : IMessageHandler
         _handlerName = GetType().FullName!;
     }
 
-    public async Task Handle(MessageNotification notification, CancellationToken cancellationToken)
+    public async Task Handle(MessageNotification notification, CancellationToken ct)
     {
         try
         {
-            var command = await GetCommand(notification.Message, cancellationToken);
+            var command = await GetCommand(notification.Message, ct);
 
             if (!WantHandle(notification.Message, command))
                 return;
 
             _logger.LogInformation("Command received {Command} by {Handler}", command, _handlerName);
-            await Handle(notification.Message, command, cancellationToken);
+            await Handle(notification.Message, command, ct);
         }
         catch (Exception e)
         {
@@ -50,9 +50,9 @@ public abstract class MessageHandler : IMessageHandler
         }
     }
 
-    private async Task<string?> GetCommand(Message message, CancellationToken cancellationToken)
+    private async Task<string?> GetCommand(Message message, CancellationToken ct)
     {
-        var me = await GetUser(cancellationToken);
+        var me = await GetUser(ct);
         var botUsername = me.Username!;
 
         var text = message.Text;
@@ -67,14 +67,14 @@ public abstract class MessageHandler : IMessageHandler
         return command;
     }
 
-    private async Task<User> GetUser(CancellationToken cancellationToken)
+    private async Task<User> GetUser(CancellationToken ct)
     {
         return await _memoryCache.GetRequiredOrCreateAsync(
             MeMemoryCacheKey,
             entry =>
             {
                 entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
-                return _telegramBotClient.GetMeAsync(cancellationToken);
+                return _telegramBotClient.GetMe(ct);
             });
     }
 
@@ -82,13 +82,13 @@ public abstract class MessageHandler : IMessageHandler
 
     protected abstract bool WantHandle(Message message, string? command);
 
-    protected abstract Task Handle(Message message, string? command, CancellationToken cancellationToken);
+    protected abstract Task Handle(Message message, string? command, CancellationToken ct);
 
     protected async Task<bool> CheckOnAdmin(long targetChatId, long userId)
     {
         try
         {
-            var admins = await _telegramBotClient.GetChatAdministratorsAsync(new ChatId(targetChatId));
+            var admins = await _telegramBotClient.GetChatAdministrators(new ChatId(targetChatId));
 
             var isAdmin = admins.FirstOrDefault(x => x.User.Id == userId);
 

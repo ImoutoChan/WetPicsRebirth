@@ -24,22 +24,22 @@ public class TelegramHostedService : IHostedService
         var address = _configuration.GetRequiredValue<string>("WebHookAddress");
 
         _logger.LogInformation("Removing WebHook");
-        await _telegramBotClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
+        await _telegramBotClient.DeleteWebhook(cancellationToken: cancellationToken);
 
         _logger.LogInformation("Setting WebHook to {Address}", address);
-        await _telegramBotClient.SetWebhookAsync(
+        await _telegramBotClient.SetWebhook(
             address,
             maxConnections: 5,
             cancellationToken: cancellationToken);
         _logger.LogInformation("WebHook is set to {Address}", address);
 
-        var webHookInfo = await _telegramBotClient.GetWebhookInfoAsync(cancellationToken);
+        var webHookInfo = await _telegramBotClient.GetWebhookInfo(cancellationToken);
         _logger.LogInformation("WebHook info: {Info}", JsonConvert.SerializeObject(webHookInfo));
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        await _telegramBotClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
+        await _telegramBotClient.DeleteWebhook(cancellationToken: cancellationToken);
         _logger.LogInformation("WebHook removed");
     }
 }

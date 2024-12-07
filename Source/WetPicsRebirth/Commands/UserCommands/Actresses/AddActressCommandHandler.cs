@@ -37,72 +37,72 @@ public class AddActressCommandHandler : MessageHandler
 
     protected override bool WantHandle(Message message, string? command) => command == "/addactress";
 
-    protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
+    protected override async Task Handle(Message message, string? command, CancellationToken ct)
     {
         var parameters = message.Text?.Split(' ') ?? Array.Empty<string>();
 
         if (parameters.Length != 4)
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Команда должна выглядеть как /addactress -1001411191119 yandere month, " +
                 "где первый параметр это айди чата или канала, " +
                 "второй — источник картинок, " +
                 "третий — параметр источника.",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!long.TryParse(parameters[1], out var targetId))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Неверный айди чата или канала",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!await CheckOnAdmin(targetId, message.From!.Id))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "У вас должны быть права администратора в выбранном чате или канале",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!TryGetImageSource(parameters[2], out var source))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Неверный источник, доступны: pixiv, yandere, danbooru",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!TryGetImageSourceOptions(parameters[3], source, out var options))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Неверная опция для источника, доступны: day|week|month " +
                 "или dailygeneral|dailyr18|weeklygeneral|weeklyr18|monthly|" +
                 "rookie|original|bymalegeneral|bymaler18|byfemalegeneral|byfemaler18|r18g",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         await _actressesRepository.Add(targetId, source, options);
 
-        await _telegramBotClient.SendTextMessageAsync(
+        await _telegramBotClient.SendMessage(
             message.Chat.Id,
             "Актрисы прихорошились и готовы к выступлению!",
-            replyToMessageId: message.MessageId,
-            cancellationToken: cancellationToken);
+            replyParameters: message.MessageId,
+            cancellationToken: ct);
     }
 
     private static bool TryGetImageSourceOptions(

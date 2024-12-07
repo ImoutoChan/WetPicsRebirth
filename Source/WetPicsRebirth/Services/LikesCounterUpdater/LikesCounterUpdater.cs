@@ -30,11 +30,11 @@ internal partial class LikesCounterUpdater : ILikesCounterUpdater
         try
         {
             var currentCount = await _votesRepository.GetCountForPost(chatId, messageId);
-            await _telegramBotClient.EditMessageReplyMarkupAsync(
+            await _telegramBotClient.EditMessageReplyMarkup(
                 chatId,
                 messageId,
                 Keyboards.WithLikes(currentCount),
-                ct);
+                cancellationToken: ct);
         }
         catch (ApiRequestException e) when (e.Message.Contains("retry after"))
         {

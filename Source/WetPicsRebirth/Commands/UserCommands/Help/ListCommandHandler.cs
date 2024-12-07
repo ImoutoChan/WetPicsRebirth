@@ -26,7 +26,7 @@ public class ListCommandHandler : MessageHandler
     protected override bool WantHandle(Message message, string? command)
         => command is "/list";
 
-    protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
+    protected override async Task Handle(Message message, string? command, CancellationToken ct)
     {
         var commands = GetType().Assembly
             .GetTypes()
@@ -35,10 +35,10 @@ public class ListCommandHandler : MessageHandler
             .Select(x => (MessageHandler)_serviceProvider.GetRequiredService(x))
             .SelectMany(x => x.ProvidedCommands);
 
-        await _telegramBotClient.SendTextMessageAsync(
+        await _telegramBotClient.SendMessage(
             message.Chat.Id,
             "Your hands today, sir: \n\n" + string.Join("\n", commands),
-            replyToMessageId: message.MessageId,
-            cancellationToken: cancellationToken);
+            replyParameters: message.MessageId,
+            cancellationToken: ct);
     }
 }

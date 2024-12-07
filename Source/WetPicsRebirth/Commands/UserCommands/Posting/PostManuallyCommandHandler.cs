@@ -48,60 +48,60 @@ public class PostManuallyCommandHandler : MessageHandler
 
     protected override bool WantHandle(Message message, string? command) => command == "/post";
 
-    protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
+    protected override async Task Handle(Message message, string? command, CancellationToken ct)
     {
         var parameters = message.Text?.Split(' ') ?? Array.Empty<string>();
 
         if (parameters.Length != 4)
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Команда должна выглядеть как /post -1001411191119 rule34 1234, " +
                 "где первый параметр это айди чата или канала, " +
                 "второй источник поста, " +
                 "третий id поста в иточнике",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!long.TryParse(parameters[1], out var targetId))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Неверный айди чата или канала",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
         
         if (!TryGetImageSource(parameters[2], out var source))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Неверный источник, доступны: pixiv, yandere, danbooru, ???",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!int.TryParse(parameters[3], out var postId))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Неверный айди поста в источнике",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!await CheckOnAdmin(targetId, message.From!.Id))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "У вас должны быть права администратора в выбранном чате или канале",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
@@ -126,7 +126,7 @@ public class PostManuallyCommandHandler : MessageHandler
         }
         catch (Exception e)
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Не удалось отправить пост: " 
                 + e.Message 
@@ -136,8 +136,8 @@ public class PostManuallyCommandHandler : MessageHandler
                 + e.InnerException?.Message 
                 + Environment.NewLine
                 + e.InnerException?.StackTrace,
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
         }
     }
 
@@ -194,7 +194,7 @@ public class PostManuallyCommandHandler : MessageHandler
     {
         await using var file = _telegramPreparer.Prepare(post.File, post.FileSize);
 
-        var sentPost = await _telegramBotClient.SendPhotoAsync(
+        var sentPost = await _telegramBotClient.SendPhoto(
             chatId: chatId,
             photo: InputFile.FromStream(file, post.FileName),
             caption: caption,
@@ -212,7 +212,7 @@ public class PostManuallyCommandHandler : MessageHandler
 
     private async Task<(Message sentPost, string fileId)> SendVideo(long chatId, Post post, string caption)
     {
-        var sentPost = await _telegramBotClient.SendVideoAsync(
+        var sentPost = await _telegramBotClient.SendVideo(
             chatId,
             InputFile.FromStream(post.File, post.FileName),
             caption: caption,

@@ -69,8 +69,8 @@ public class PostTopHandler : IRequestHandler<PostTop>
         if (!fileIds.Any())
             return;
 
-        var topMessage = await _telegramBotClient.SendMediaGroupAsync(scene.ChatId, fileIds);
-        await _telegramBotClient.PinChatMessageAsync(scene.ChatId, topMessage[0].MessageId);
+        var topMessage = await _telegramBotClient.SendMediaGroup(scene.ChatId, fileIds);
+        await _telegramBotClient.PinChatMessage(scene.ChatId, topMessage[0].MessageId);
     }
 
     private static string GetCaption(TopType topType, IReadOnlyCollection<PostedMedia> topMedia)

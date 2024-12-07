@@ -33,7 +33,7 @@ public class SetAccountCommandHandler : MessageHandler
 
     protected override bool WantHandle(Message message, string? command) => command == "/setaccount";
 
-    protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
+    protected override async Task Handle(Message message, string? command, CancellationToken ct)
     {
         var userId = message.From!.Id;
 
@@ -41,24 +41,24 @@ public class SetAccountCommandHandler : MessageHandler
 
         if (parameters.Length != 4)
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Команда должна выглядеть как /setaccount danbooru username sad1234jf3kl312aj341jkl123, " +
                 "где первый параметр это источник картинок, " +
                 "второй — ваш логин в источнике, " +
                 "третий — ваш ключ ApiKey (обычно можно посмотреть на сайте в профиле).",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!TryGetImageSource(parameters[1], out var source) || source == ImageSource.Pixiv)
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Неверный источник, доступны: yandere, danbooru",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
@@ -67,11 +67,11 @@ public class SetAccountCommandHandler : MessageHandler
 
         await _userAccountsRepository.Set(userId, source, login, apikey);
 
-        await _telegramBotClient.SendTextMessageAsync(
+        await _telegramBotClient.SendMessage(
             message.Chat.Id,
             "Ваш персональный пропуск к актрисам сохранен!",
-            replyToMessageId: message.MessageId,
-            cancellationToken: cancellationToken);
+            replyParameters: message.MessageId,
+            cancellationToken: ct);
     }
 
     private static bool TryGetImageSource(string sourceString, out ImageSource source)

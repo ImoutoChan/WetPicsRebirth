@@ -21,7 +21,7 @@ public class ModerationCallbackHandler : ICallbackHandler
         _moderatedPostsRepository = moderatedPostsRepository;
     }
 
-    public async Task Handle(CallbackNotification notification, CancellationToken token)
+    public async Task Handle(CallbackNotification notification, CancellationToken ct)
     {
         if (notification.CallbackQuery.Data?.StartsWith(CallbackStartsWith) != true)
             return;
@@ -31,15 +31,15 @@ public class ModerationCallbackHandler : ICallbackHandler
         var isApproved = notification.CallbackQuery.Data == CallbackApproveMessage;
 
         await _moderatedPostsRepository.Set(messageId, isApproved);
-        await _telegramBotClient.AnswerCallbackQueryAsync(notification.CallbackQuery.Id, cancellationToken: token);
+        await _telegramBotClient.AnswerCallbackQuery(notification.CallbackQuery.Id, cancellationToken: ct);
 
         if (isApproved)
         {
-            await _telegramBotClient.DeleteMessageAsync(chatId, messageId, token);
+            await _telegramBotClient.DeleteMessage(chatId, messageId, ct);
         }
         else
         {
-            await _telegramBotClient.EditMessageReplyMarkupAsync(chatId, messageId, null, token);
+            await _telegramBotClient.EditMessageReplyMarkup(chatId, messageId, null, cancellationToken: ct);
         }
     }
 }

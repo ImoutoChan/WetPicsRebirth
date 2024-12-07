@@ -30,47 +30,47 @@ public class TurnOffPostingCommandHandler : MessageHandler
 
     protected override bool WantHandle(Message message, string? command) => command == "/wetpicsoff";
 
-    protected override async Task Handle(Message message, string? command, CancellationToken cancellationToken)
+    protected override async Task Handle(Message message, string? command, CancellationToken ct)
     {
         var parameters = message.Text?.Split(' ') ?? Array.Empty<string>();
 
         if (parameters.Length != 2)
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Команда должна выглядеть как /wetpicsoff -1001411191119, " +
                 "где параметр это айди чата или канала",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!long.TryParse(parameters[1], out var targetId))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "Неверный айди чата или канала",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         if (!await CheckOnAdmin(targetId, message.From!.Id))
         {
-            await _telegramBotClient.SendTextMessageAsync(
+            await _telegramBotClient.SendMessage(
                 message.Chat.Id,
                 "У вас должны быть права администратора в выбранном чате или канале",
-                replyToMessageId: message.MessageId,
-                cancellationToken: cancellationToken);
+                replyParameters: message.MessageId,
+                cancellationToken: ct);
             return;
         }
 
         await _scenesRepository.Disable(targetId);
 
-        await _telegramBotClient.SendTextMessageAsync(
+        await _telegramBotClient.SendMessage(
             message.Chat.Id,
             "Постинг выключен! Плак..",
-            replyToMessageId: message.MessageId,
-            cancellationToken: cancellationToken);
+            replyParameters: message.MessageId,
+            cancellationToken: ct);
     }
 }

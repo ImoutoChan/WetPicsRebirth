@@ -25,11 +25,11 @@ public class CheckPostQueryHandler : IRequestHandler<CheckPostQuery, bool>
         _logger = logger;
     }
 
-    public async Task<bool> Handle(CheckPostQuery request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(CheckPostQuery request, CancellationToken ct)
     {
         try
         {
-            return await HandleInternal(request, cancellationToken);
+            return await HandleInternal(request, ct);
         }
         catch (Exception e)
         {
@@ -38,7 +38,7 @@ public class CheckPostQueryHandler : IRequestHandler<CheckPostQuery, bool>
         }
     }
 
-    private async Task<bool> HandleInternal(CheckPostQuery request, CancellationToken cancellationToken)
+    private async Task<bool> HandleInternal(CheckPostQuery request, CancellationToken ct)
     {
         var post = request.Post;
         var hash = post.PostHeader.Md5Hash ?? GetHash(post.File);
@@ -50,13 +50,13 @@ public class CheckPostQueryHandler : IRequestHandler<CheckPostQuery, bool>
 
         var file = _telegramPreparer.Prepare(post.File, post.FileSize);
 
-        var sentPost = await _telegramBotClient.SendPhotoAsync(
+        var sentPost = await _telegramBotClient.SendPhoto(
             chatId: request.ModeratorId,
             photo: InputFile.FromStream(file, post.FileName),
             caption: post.PostHtmlCaption,
             parseMode: ParseMode.Html,
             replyMarkup: Keyboards.WithModeration,
-            cancellationToken: cancellationToken);
+            cancellationToken: ct);
 
         await _moderatedPostsRepository.Add(post.PostHeader.Id, hash, sentPost.MessageId);
 
