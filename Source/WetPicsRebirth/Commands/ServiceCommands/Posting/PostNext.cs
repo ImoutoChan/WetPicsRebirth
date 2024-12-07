@@ -150,7 +150,9 @@ public class PostNextHandler : IRequestHandler<PostNext>
     }
 
     private static bool ShouldSkip(LoadedPost loadedPost)
-        => loadedPost.Post.FileSize > 50_000_000 || loadedPost.Post.FileName.EndsWith(".webm");
+        => loadedPost.Post is BannedPost
+           || loadedPost.Post.FileSize > 50_000_000
+           || loadedPost.Post.FileName.EndsWith(".webm");
 
     private async Task<(Message sentPost, string fileId, MediaType fileType)> SentPostToTelegram(
         Actress actress,

@@ -15,3 +15,5 @@ public record Post(PostHeader PostHeader, string Url, Stream File, long FileSize
         ? $"<a href=\"https://yande.re/post/show/{PostHeader.Id}\">yande.re</a>"
         : $"<a href=\"https://danbooru.donmai.us/posts/{PostHeader.Id}\">danbooru.donmai.us</a>";
 }
+
+public record BannedPost(PostHeader PostHeader) : Post(PostHeader, string.Empty, Stream.Null, 0, null);

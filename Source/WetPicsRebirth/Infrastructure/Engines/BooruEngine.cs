@@ -54,6 +54,11 @@ public class BooruEngine : IPopularListLoaderEngine
             var post = await _loader.GetPostAsync(postHeader.Id);
             mediaUrl = GetMediaUrl(post);
 
+            if (string.IsNullOrWhiteSpace(mediaUrl))
+            {
+                return new LoadedPost(new BannedPost(postHeader));
+            }
+
             var loaded = IsUgoira(post) 
                 ? await LoadPostFromUgoira(post.OriginalUrl!) 
                 : await LoadRegularPost(mediaUrl, post);
