@@ -37,7 +37,9 @@ public class Startup
         services.Configure<PixivConfiguration>(Configuration.GetSection("Pixiv"));
         services.Configure<DanbooruConfiguration>(Configuration.GetSection("Danbooru"));
 
-        services.AddControllers().AddNewtonsoftJson();
+        services.AddControllers();
+        services.ConfigureTelegramBotMvc();
+
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo {Title = "WetPicsRebirth", Version = "v1"});
