@@ -83,7 +83,9 @@ public class Startup
 
         services.AddLikesToFavoritesOffload();
         services.AddLikesCounterUpdaterOffload();
-        
+
+        services.AddSingleton<IPauseService, PauseService>();
+
         // mediator
         services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<Startup>());
         var handlers = GetType().Assembly
@@ -119,13 +121,13 @@ public class Startup
             c.AddTrigger(t => t
                 .ForJob(nameof(PostMonthlyTopJob))
                 .StartNow()
-                .WithCronSchedule("0 0 16 1 * ? *"));
+                .WithCronSchedule("0 0 16 L * ? *"));
 
             c.AddJob<PostYearlyTopJob>(j => j.WithIdentity(nameof(PostYearlyTopJob)));
             c.AddTrigger(t => t
                 .ForJob(nameof(PostYearlyTopJob))
                 .StartNow()
-                .WithCronSchedule("0 0 18 1 JAN ? *"));
+                .WithCronSchedule("0 0 18 L DEC ? *"));
         });
 
     }

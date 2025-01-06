@@ -1,6 +1,7 @@
 ﻿using Telegram.Bot.Types;
 using WetPicsRebirth.Data.Entities;
 using WetPicsRebirth.Data.Repositories.Abstract;
+using WetPicsRebirth.Services;
 
 namespace WetPicsRebirth.Commands.ServiceCommands.Posting;
 
@@ -13,18 +14,20 @@ public class PostTopHandler : IRequestHandler<PostTop>
     private readonly IScenesRepository _scenesRepository;
     private readonly ITelegramBotClient _telegramBotClient;
     private readonly IVotesRepository _votesRepository;
+    private readonly IPauseService _pauseService;
 
     public PostTopHandler(
         IScenesRepository scenesRepository,
         ITelegramBotClient telegramBotClient,
-        IVotesRepository votesRepository)
+        IVotesRepository votesRepository, IPauseService pauseService)
     {
         _scenesRepository = scenesRepository;
         _telegramBotClient = telegramBotClient;
         _votesRepository = votesRepository;
+        _pauseService = pauseService;
     }
 
-    public async Task Handle(PostTop command, CancellationToken __)
+    public async Task Handle(PostTop command, CancellationToken _)
     {
         var topType = command.Type;
         var forLastDays = topType switch
@@ -71,6 +74,7 @@ public class PostTopHandler : IRequestHandler<PostTop>
 
         var topMessage = await _telegramBotClient.SendMediaGroup(scene.ChatId, fileIds);
         await _telegramBotClient.PinChatMessage(scene.ChatId, topMessage[0].MessageId);
+        _pauseService.Pause(scene, topType);
     }
 
     private static string GetCaption(TopType topType, IReadOnlyCollection<PostedMedia> topMedia)

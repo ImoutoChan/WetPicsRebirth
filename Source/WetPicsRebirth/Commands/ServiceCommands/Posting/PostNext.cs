@@ -26,6 +26,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
     private readonly IPostedMediaRepository _postedMediaRepository;
     private readonly ITelegramPreparer _telegramPreparer;
     private readonly IModerationService _moderationService;
+    private readonly IPauseService _pauseService;
 
     private readonly string _channelLink;
     private readonly string _accessLink;
@@ -39,7 +40,8 @@ public class PostNextHandler : IRequestHandler<PostNext>
         IPostedMediaRepository postedMediaRepository,
         IConfiguration configuration,
         ITelegramPreparer telegramPreparer,
-        IModerationService moderationService)
+        IModerationService moderationService,
+        IPauseService pauseService)
     {
         _scenesRepository = scenesRepository;
         _actressesRepository = actressesRepository;
@@ -49,6 +51,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
         _postedMediaRepository = postedMediaRepository;
         _telegramPreparer = telegramPreparer;
         _moderationService = moderationService;
+        _pauseService = pauseService;
         _channelLink = configuration.GetRequiredValue<string>("ChannelInviteLink");
         _accessLink = configuration.GetRequiredValue<string>("AccessLink");
     }
@@ -59,6 +62,9 @@ public class PostNextHandler : IRequestHandler<PostNext>
 
         foreach (var scene in readyScenes)
         {
+            if (_pauseService.IsPaused(scene))
+                continue;
+
             var actresses = await _actressesRepository.GetForChat(scene.ChatId);
 
             if (actresses.Count == 0)
