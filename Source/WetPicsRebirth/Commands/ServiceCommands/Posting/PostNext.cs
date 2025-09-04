@@ -122,6 +122,7 @@ public class PostNextHandler : IRequestHandler<PostNext>
 
         if (loadedPost.RequireModeration)
         {
+            _logger.LogInformation("Moderation: Post {PostId} checking", loadedPost.Post.PostHeader.Id);
             var approved = await _moderationService.CheckPost(loadedPost.Post);
             if (!approved)
             {
@@ -129,6 +130,10 @@ public class PostNextHandler : IRequestHandler<PostNext>
                 await PostNextForActress(actress, newSkipIds);
                 return;
             }
+        }
+        else
+        {
+            _logger.LogInformation("Moderation: Post {PostId} autoapproved", loadedPost.Post.PostHeader.Id);
         }
 
         if (ShouldSkip(loadedPost))
