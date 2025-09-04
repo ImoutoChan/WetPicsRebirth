@@ -47,7 +47,7 @@ public class BooruEngine : IPopularListLoaderEngine
         {
             _logger.LogError(e, "Failed to load post {PostId} with media url {MediaUrl}", postId, mediaUrl);
             throw;
-        }        
+        }
         
         async Task<LoadedPost> LoadPostCore()
         {
@@ -184,5 +184,5 @@ public class BooruEngine : IPopularListLoaderEngine
     }
 
     private static bool CheckForModeration(Imouto.BooruParser.Post post)
-        => post.Rating == Rating.Explicit && post.Tags.Any(x => x.Name is "loli" or "shota");
+        => post.Rating == Rating.Explicit && post.Tags.Any(x => x.Name is "loli" or "shota") || post.Tags.Count == 0;
 }
