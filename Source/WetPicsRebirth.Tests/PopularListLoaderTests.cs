@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Bogus;
 using FluentAssertions;
+using Flurl.Http.Configuration;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -39,7 +40,8 @@ public class PopularListLoaderTests
                     new PixivAuthorization(pixivOptions,
                         new MemoryCache(Options.Create(new MemoryCacheOptions())))),
                 new NullLoggerFactory(),
-                new DefaultHttpClientFactory()),
+                new DefaultHttpClientFactory(),
+                new FlurlClientCache()),
             new MemoryCache(Options.Create(new MemoryCacheOptions())));
     }
 

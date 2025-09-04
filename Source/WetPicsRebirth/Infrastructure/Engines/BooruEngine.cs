@@ -26,7 +26,7 @@ public class BooruEngine : IPopularListLoaderEngine
 
         var popular = await _loader.GetPopularPostsAsync(popularType);
 
-        return popular.Results.Select(x => new PostHeader(x.Id, x.Md5Hash)).ToList();
+        return popular.Results.Select(x => new PostHeader(int.Parse(x.Id), x.Md5Hash)).ToList();
     }
 
     public virtual async Task<LoadedPost> LoadPost(PostHeader postHeader)

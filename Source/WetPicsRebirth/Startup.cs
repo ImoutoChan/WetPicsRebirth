@@ -2,6 +2,7 @@ global using MediatR;
 global using NodaTime;
 global using Telegram.Bot;
 global using Telegram.Bot.Types.Enums;
+using Flurl.Http.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Quartz;
@@ -38,7 +39,6 @@ public class Startup
         services.Configure<DanbooruConfiguration>(Configuration.GetSection("Danbooru"));
 
         services.AddControllers();
-        services.ConfigureTelegramBotMvc();
 
         services.AddSwaggerGen(c =>
         {
@@ -80,6 +80,7 @@ public class Startup
         services.AddTransient<IImageSourceApi, ImageSourceApi>();
         services.AddTransient<IPixivAuthorization, PixivAuthorization>();
         services.AddImageProcessing();
+        services.AddSingleton<IFlurlClientCache, FlurlClientCache>();
 
         services.AddLikesToFavoritesOffload();
         services.AddLikesCounterUpdaterOffload();

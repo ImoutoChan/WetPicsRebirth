@@ -18,18 +18,21 @@ public class EngineFactory : IEngineFactory
     private readonly IPixivApiClient _pixivApiClient;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IFlurlClientCache _flurlClientCache;
 
     public EngineFactory(
         HttpClient httpClient,
         IOptions<DanbooruConfiguration> danbooruConfiguration,
         IPixivApiClient pixivApiClient,
         ILoggerFactory loggerFactory,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IFlurlClientCache flurlClientCache)
     {
         _httpClient = httpClient;
         _pixivApiClient = pixivApiClient;
         _loggerFactory = loggerFactory;
         _httpClientFactory = httpClientFactory;
+        _flurlClientCache = flurlClientCache;
         _danbooruConfiguration = danbooruConfiguration.Value;
     }
 
@@ -42,13 +45,16 @@ public class EngineFactory : IEngineFactory
         {
             ImageSource.Yandere => new BooruEngine(
                 new YandereApiLoader(
-                    new PerBaseUrlFlurlClientFactory(),
-                    Options.Create(new YandereSettings())), 
+                    _flurlClientCache,
+                    Options.Create(new YandereSettings()
+                    {
+                        BotUserAgent = _danbooruConfiguration.BotUserAgent
+                    })),
                 _httpClient,
                 _loggerFactory.CreateLogger<BooruEngine>()),
             ImageSource.Danbooru => new FallbackToGelbooruDanbooruEngine(
                 new DanbooruApiLoader(
-                    new PerBaseUrlFlurlClientFactory(),
+                    _flurlClientCache,
                     Options.Create(new DanbooruSettings()
                     {
                         ApiKey = _danbooruConfiguration.ApiKey,
@@ -57,28 +63,34 @@ public class EngineFactory : IEngineFactory
                         BotUserAgent = _danbooruConfiguration.BotUserAgent
                     })),
                 new GelbooruApiLoader(
-                    new PerBaseUrlFlurlClientFactory(),
+                    _flurlClientCache,
                     Options.Create(new GelbooruSettings()
                     {
                         PauseBetweenRequestsInMs = _danbooruConfiguration.Delay,
+                        ApiKey = "",
+                        UserId = 0
                     })),
                 danbooruHttpClient,
                 _loggerFactory.CreateLogger<FallbackToGelbooruDanbooruEngine>()),
             ImageSource.Rule34 => new BooruEngine(
                 new Rule34ApiLoader(
-                    new PerBaseUrlFlurlClientFactory(),
+                    _flurlClientCache,
                     Options.Create(new Rule34Settings()
                     {
                         PauseBetweenRequestsInMs = 1,
+                        ApiKey = "",
+                        UserId = 0
                     })),
                 _httpClient,
                 _loggerFactory.CreateLogger<BooruEngine>()),
             ImageSource.Gelbooru => new BooruEngine(
                 new GelbooruApiLoader(
-                    new PerBaseUrlFlurlClientFactory(),
+                    _flurlClientCache,
                     Options.Create(new GelbooruSettings()
                     {
                         PauseBetweenRequestsInMs = 1,
+                        ApiKey = "",
+                        UserId = 0
                     })),
                 _httpClient,
                 _loggerFactory.CreateLogger<BooruEngine>()),

@@ -10,10 +10,14 @@ namespace WetPicsRebirth.Infrastructure;
 
 public class ImageSourceApi : IImageSourceApi
 {
+    private readonly IFlurlClientCache _flurlClientCache;
     private readonly DanbooruConfiguration _danbooruConfiguration;
 
-    public ImageSourceApi(IOptions<DanbooruConfiguration> danbooruConfiguration) 
-        => _danbooruConfiguration = danbooruConfiguration.Value;
+    public ImageSourceApi(IOptions<DanbooruConfiguration> danbooruConfiguration, IFlurlClientCache flurlClientCache)
+    {
+        _flurlClientCache = flurlClientCache;
+        _danbooruConfiguration = danbooruConfiguration.Value;
+    }
 
     public Task FavoritePost(UserAccount account, int postId)
     {
@@ -21,7 +25,7 @@ public class ImageSourceApi : IImageSourceApi
         {
             { Source: ImageSource.Danbooru } =>
                 new DanbooruApiLoader(
-                    new PerBaseUrlFlurlClientFactory(), 
+                    _flurlClientCache,
                     Options.Create(new DanbooruSettings()
                     {
                         ApiKey = account.ApiKey,
@@ -31,11 +35,12 @@ public class ImageSourceApi : IImageSourceApi
                     })),
             { Source: ImageSource.Yandere } => 
                 new YandereApiLoader(
-                    new PerBaseUrlFlurlClientFactory(), 
+                    _flurlClientCache,
                     Options.Create(new YandereSettings()
                     {
                         Login = account.Login,
-                        PasswordHash = account.ApiKey
+                        PasswordHash = account.ApiKey,
+                        BotUserAgent = _danbooruConfiguration.BotUserAgent
                     })),
             _ => throw new ArgumentOutOfRangeException(nameof(account))
         };
