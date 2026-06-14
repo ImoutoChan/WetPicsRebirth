@@ -2,7 +2,7 @@ using WetPicsRebirth.Data.Entities;
 
 namespace WetPicsRebirth.Infrastructure.Models;
 
-public record Post(PostHeader PostHeader, string Url, Stream File, long FileSize, string? Author)
+public record Post(PostHeader PostHeader, string Url, Stream File, long FileSize, string? Author, int? Width = null, int? Height = null)
 {
     public MediaType Type =>
         Url.EndsWith(".mp4") || Url.EndsWith(".webm") || Url.EndsWith(".swf")

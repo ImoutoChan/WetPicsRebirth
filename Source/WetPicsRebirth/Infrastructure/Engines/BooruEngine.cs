@@ -64,8 +64,11 @@ public class BooruEngine : IPopularListLoaderEngine
                 : await LoadRegularPost(mediaUrl, post);
 
             var author = post.Tags.Where(x => x.Type == "artist").Select(x => x.Name).FirstOrDefault();
-            
-            var resultPost = new Post(postHeader, mediaUrl, loaded.Stream, loaded.Length, author);
+
+            int? width = post.FileResolution.Width > 0 ? post.FileResolution.Width : null;
+            int? height = post.FileResolution.Height > 0 ? post.FileResolution.Height : null;
+
+            var resultPost = new Post(postHeader, mediaUrl, loaded.Stream, loaded.Length, author, width, height);
             var requireModeration = CheckForModeration(post);
 
             return new(resultPost, requireModeration);

@@ -78,7 +78,10 @@ public class FallbackToGelbooruDanbooruEngine : BooruEngine
 
             var artist = post.Tags.FirstOrDefault(x => x.Type == "artist")?.Name;
 
-            var resultPost = new Post(postHeader, mediaUrl, stream, length.Value, artist);
+            int? width = post.FileResolution.Width > 0 ? post.FileResolution.Width : null;
+            int? height = post.FileResolution.Height > 0 ? post.FileResolution.Height : null;
+
+            var resultPost = new Post(postHeader, mediaUrl, stream, length.Value, artist, width, height);
             var requireModeration = CheckForModeration(post);
 
             return new(resultPost, requireModeration);

@@ -217,6 +217,8 @@ public class PostManuallyCommandHandler : MessageHandler
             InputFile.FromStream(post.File, post.FileName),
             caption: caption,
             parseMode: ParseMode.Html,
+            width: post.Width,
+            height: post.Height,
             replyMarkup: Keyboards.WithLikes(0));
 
         var fileId = sentPost.Video!.FileId;
