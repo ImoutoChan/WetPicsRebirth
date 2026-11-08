@@ -6,6 +6,13 @@ on:
       - '*'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: wetpicsrebirth-production
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-22.04
@@ -19,7 +26,7 @@ jobs:
       - uses: actions/setup-dotnet@3447fd6a9f9e57506b15f895c5b76d3b197dc7c2 # v3.2.0
         with:
           dotnet-version: '3.1.x'
-      
+
       - name: Set up Docker Buildx
         id:   buildx
         uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
@@ -63,4 +70,5 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.HOST_FINGERPRINT }}
           script: ./update.wetpicsrebirthbot.sh

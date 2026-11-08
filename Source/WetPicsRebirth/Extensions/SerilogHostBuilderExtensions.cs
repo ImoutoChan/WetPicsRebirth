@@ -30,6 +30,7 @@ public static class SerilogHostBuilderExtensions
                                 .MinimumLevel.Information()
                                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                                 .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+                                .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Warning)
 
                                 .WriteTo.Console()
 

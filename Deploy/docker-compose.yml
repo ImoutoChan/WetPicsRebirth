@@ -1,28 +1,32 @@
-version: '3.3'
-
 services:
   postgresserver:
     image: postgres:14.1
+    restart: always
     environment:
-      - POSTGRES_PASSWORD=pass
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     networks:
       - customnetwork
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:54322:5432"
       
   wetpicsrebirth:
     image: imoutochan/wetpicsrebirth:latest
+    restart: always
     depends_on: 
       - postgresserver
     links:
       - postgresserver
     networks:
       - customnetwork
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__WetPicsRebirthOnPostgres=Server=postgresserver;Port=5432;Database=WetPicsRebirth;User Id=postgres;Password=pass
+      - ConnectionStrings__WetPicsRebirthOnPostgres=Server=postgresserver;Port=5432;Database=WetPicsRebirth;User Id=postgres;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     ports:
-      - "4430:8080"
+      - "127.0.0.1:42426:8080"
       
 
 networks:

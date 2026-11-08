@@ -2,6 +2,11 @@
 
 public static class ConfigurationExtensions
 {
+    public static IConfigurationBuilder AddPixivTokenCache(this IConfigurationBuilder builder)
+        => builder
+            .AddJsonFile("appsettings.Cache.json.backup", optional: true)
+            .AddJsonFile("appsettings.Cache.json", optional: true);
+
     public static T GetRequiredValue<T>(this IConfiguration configuration, string key) 
         => configuration.GetValue<T>(key) 
            ?? throw new Exception($"Value with key {key} is not found in configuration.");
