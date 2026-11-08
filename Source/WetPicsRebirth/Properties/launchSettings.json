@@ -14,8 +14,7 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "publishAllPorts": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings:AzureApplicationConfiguration": "Endpoint=https://wetpicsrebirthappconfiguration.azconfig.io;Id=c59K-l9-s0:nLK08eFj/LesOj73XjGa;Secret=E9GSlQ3FVXAQTuR9lknAUibjZLI4YVLI4rKUAbp2tuQ="
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
